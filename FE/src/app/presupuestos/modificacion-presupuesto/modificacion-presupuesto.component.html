@@ -1,0 +1,117 @@
+<div class="container">
+    <div class="p-3 encabezadop">
+        <h2>Presupuesto</h2>
+        <form [formGroup]="formAgregarPresupuesto" class="row g-3">
+            <div class="col-md-5">
+                <label for="clienteId" class="form-label">Cliente</label>
+                <select class="form-select" formControlName="clienteId" id="clienteId">
+                    <option selected disabled>seleccione...</option>
+                    <option *ngFor="let c of listaClientes" [value]="c.id">
+                        {{ c.razonSocial }}
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label for="campania" class="form-label">Campaña</label>
+                <input type="text" formControlName="campania" id="campania" class="form-control"
+                    [class.invalido]="controlCompania.touched && controlCompania.hasError('required')">
+                <div *ngIf="controlCompania.touched && controlCompania.hasError('required')" class="alert alert-danger"
+                    role="alert">
+                    ¡El campo campaña es requerido!
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-success m-2" (click)="crearPresupuesto()">
+                    Modificar presupuesto
+                </button>
+            </div>
+        </form>
+
+        <div *ngIf="mostrar">
+            <form [formGroup]="productoForm" (ngSubmit)="onSubmit()">
+                <div formArrayName="productos">
+                    <div *ngFor="let producto of productos().controls; let productoIndex=index">
+                        <div [formGroupName]="productoIndex">
+                            <div class="row encabezado py-3">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="nombreProducto">Nombre Producto</label>
+                                        <input formControlName="nombreProducto" id="nombreProducto" type="text"
+                                            class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="banioProducto">Baño Producto</label>
+                                        <input formControlName="banioProducto" id="banioProducto" type="text"
+                                            class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="cantidadProductos">Cantidad</label>
+                                        <input formControlName="cantidadProductos" id="cantidadProductos" type="number"
+                                            class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-2 pt-4">
+                                    <button type="button" class="btn btn-outline-secondary"
+                                        (click)="removeProducto(productoIndex)">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div formArrayName="DetalleProductos">
+                                <div
+                                    *ngFor="let insumo of productoInsumo(productoIndex).controls; let insumoIndex=index">
+                                    <div [formGroupName]="insumoIndex">
+                                        <div class="row cuerpo">
+                                            <div class="col-md-6">
+                                                <label for="Id" class="form-label">Insumo</label>
+                                                <select class="form-select" formControlName="InsumoId" id="Id"
+                                                    (change)="ObtenerInsumoPorId($any($event.target).value)">
+                                                    <option selected disabled>seleccione...</option>
+                                                    <option *ngFor="let i of listaInsumos" value={{i.id}}>
+                                                        {{i.descripcion}}
+                                                    </option>
+                                                </select>
+                                                <div *ngIf="mostrarPrecio" id="Insumo" class="form-text">Último precio $
+                                                    {{
+                                                    insumoEncontrado.precio }} de fecha {{
+                                                    insumoEncontrado.fechaCompra | date: 'dd/MM/yyyy' }}</div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label for="cantidad">Cantidad</label>
+                                                    <input formControlName="cantidad" id="cantidad" type="number"
+                                                        class="form-control" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label for="precioInsumo">Precio insumo</label>
+                                                    <input formControlName="precioInsumo" id="precioInsumo"
+                                                        type="number" class="form-control" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 pt-4">
+                                                <button type="button" class="btn btn-outline-secondary"
+                                                    (click)="removeProductoInsumo(productoIndex,insumoIndex)">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-success m-2"
+                                (click)="addProductoInsumo(productoIndex)">Agregar insumo</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-success" (click)="addProducto()">Agregar producto</button>
+                </div>
+            </form>
+            <button type="button" class="btn btn-success" (click)="onSubmit()">Guardar presupuesto</button>
+        </div>
+    </div>
+</div>

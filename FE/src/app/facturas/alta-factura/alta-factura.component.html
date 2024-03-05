@@ -1,0 +1,75 @@
+<div class="container">
+    <form [formGroup]="formAgregarComprobante" (submit)="guardar()" class="row g-3">
+        <div class="col-md-12"> 
+            <label for="ClienteId" class="form-label">Cliente</label>
+            <select class="form-select" formControlName="ClienteId" id="ClienteId">
+                <option selected disabled>seleccione...</option>
+                <option *ngFor="let c of listaClientes" [value]="c.id">
+                    {{ c.razonSocial }}
+                </option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="fecha" class="form-label">Fecha</label>
+            <input type="date" formControlName="fecha" id="fecha" class="form-control"
+            [class.invalido]="controlfecha.touched && controlfecha.hasError('required')">
+        <div *ngIf="controlfecha.touched && controlfecha.hasError('required')"
+            class="alert alert-danger" role="alert">
+            ¡La fecha es requerida!
+        </div>
+        </div>
+        <div class="col-md-6">
+            <label for="numero" class="form-label">Número</label>
+            <input type="text" formControlName="numero" id="numero" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label for="tipoComprobante" class="form-label">Tipo comprobante</label>
+            <select class="form-select" formControlName="tipoComprobante" id="tipoComprobante">
+                <option selected disabled>seleccione...</option>
+                <option value=1>Factura A</option>
+                <option value=2>Nota de Dédito A</option>
+                <option value=3>Nota de Crédito A</option>
+                <option value=4>Recibo A</option>
+                <option value=5>Factura B</option>
+                <option value=6>Nota de Dédito B</option>
+                <option value=7>Nota de Crédito B</option>
+                <option value=8>Recibo B</option>
+                <option value=9>FCE MiPyMEs A</option>
+                <option value=10>FCE MiPyMEs B</option>
+                <option value=11>NDE MiPyMEs A</option>
+                <option value=12>NDE MiPyMEs B</option>
+                <option value=13>NCE MiPyMEs A</option>
+                <option value=14>NCE MiPyMEs B</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" formControlName="dolar" id="dolar" [checked]="false">
+                <label class="form-check-label" for="dolar">
+                  ¿USD?
+                </label>
+              </div>
+        </div>
+        <div class="col-md-3" *ngIf="formAgregarComprobante.value.dolar">
+            <label for="tipoCambio" class="form-label">Tipo de cambio</label>
+            <input type="number" formControlName="tipoCambio" class="form-control" id="tipoCambio">
+        </div>
+        <div class="col-md-6">
+            <label for="netoGravado" class="form-label">Neto Gravado</label>
+            <input type="number" formControlName="netoGravado" id="netoGravado"
+                class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label for="iva" class="form-label">IVA</label>
+            <input type="number" formControlName="iva" id="iva" class="form-control" [readonly]="true">
+        </div>
+        <div class="col-md-6">
+            <label for="total" class="form-label">Total</label>
+            <input type="number" formControlName="total" class="form-control" id="total" [readonly]="true">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="borrarFormulario()">Cerrar</button>
+            <button class="btn btn-success"  data-bs-dismiss="modal" (click)="guardar()">Guardar</button>
+        </div>
+    </form>
+</div>

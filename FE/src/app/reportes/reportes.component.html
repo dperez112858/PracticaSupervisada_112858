@@ -1,0 +1,352 @@
+<div class="container">
+    <div class="mx-5 mb-2">
+        <div class="row">
+            <div class="col-2">
+                <h4 class="texto-r" >Reportes:</h4>
+            </div>
+            <div class="col-10">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button class="btn btn-success" type="button" (click)="menuFacturacion()"><i
+                            class="bi bi-receipt-cutoff mx-2"></i>Facturación</button>
+                    <button class="btn btn-success" type="button" (click)="menuCobranzas()"><i
+                            class="bi bi-wallet2 mx-2"></i>Cobranzas</button>
+                            <button class="btn btn-success" type="button" (click)="menuCuentaCorriente()"><i
+                                class="bi bi-cash-coin mx-2"></i>Cuenta Corriente</button>
+                    <button class="btn btn-success" type="button" (click)="menuPedidos()"><i
+                            class="bi bi-calculator mx-2"></i>Presupuestos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr>
+<div *ngIf="mFacturacion">
+    <div class="container">
+        <div class="mx-5">
+            <form [formGroup]="facturaForm">
+                <div class="row">
+                    <div class="mb-3 col-sm-5">
+                        <input type="date" formControlName="fechaInicio" class="form-control" required>
+                    </div>
+                    <div class="mb-3 col-sm-5">
+                        <input type="date" formControlName="fechaFin" class="form-control" required>
+                    </div>
+                    <!-- <div class="mb-3 col-sm-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" formControlName="cancelada" id="cancelada">
+                            <label class="form-check-label" for="cancelada">
+                              Cobradas
+                            </label>
+                          </div>
+                    </div> -->
+                    <div class="mb-3 col-sm-2">
+                        <button type="button" class="btn btn-success" (click)="ObtenerPedidosPorMes()"><i
+                                class="bi bi-search mx-2" style="color: white;"></i>Buscar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="container" id="facturacion">
+        <div class="mx-5 pt-5">
+            <div class="row border">
+                <div class="col-md-1 bg-light">
+                    <img src="../../../assets/Logo_NMP.png" alt="Logo" style="width: 40px;" class="my-4">
+                </div>
+                <div class="col-md-6 bg-light">
+                    <ul class="list-unstyled my-4">
+                        <li>
+                            <h4>Facturas</h4>
+                        </li>
+                        <li>Período: {{ intervalo.fechaInicio | date: 'dd/MM/yyyy'}} - {{ intervalo.fechaFin | date:
+                            'dd/MM/yyyy'}}</li>
+                    </ul>
+                </div>
+                <div class="col-md-5 bg-light">
+                    <ul class="list-unstyled my-4">
+                        <li>Fecha de emisión: {{ fecha | date: 'dd/MM/yyyy' }}</li>
+                        <!-- <li>Otro dato de interés</li> -->
+                    </ul>
+                </div>
+            </div>
+            <div class="row border">
+                <table class="table">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Comprobante</th>
+                            <th scope="col">Emisión</th>
+                            <th scope="col">Tipo Comprobante</th>
+                            <th scope="col">Razón Social</th>
+                            <th class="moneda" scope="col">Neto</th>
+                            <th class="moneda" scope="col">IVA</th>
+                            <th class="moneda" scope="col">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let f of listadoFactMes | filtroCliente: filtroPorCliente">
+                            <td>{{ f.numero }}</td>
+                            <td>{{ f.fecha | date: 'dd/MM/yyyy' }}</td>
+                            <td *ngIf="f.tipoComprobante == 1">Factura A</td>
+                            <td *ngIf="f.tipoComprobante == 2">Nota de Crédito A</td>
+                            <td>{{ f.cliente.razonSocial }}</td>
+                            <td class="moneda">{{ f.netoGravado | currency }}</td>
+                            <td class="moneda">{{ f.iva | currency }}</td>
+                            <td class="moneda">{{ f.total | currency }}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th scope="col">TOTALES</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col">{{ totalFacturas | currency}}</th>
+                            <th scope="col">{{ sumaFactras | currency}}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="mCobranzas">
+    <div class="container">
+        <div class="mx-5">
+            <form [formGroup]="cobranzaForm">
+                <div class="row">
+                    <div class="mb-3 col-sm-5">
+                        <input type="date" formControlName="fechaInicio" class="form-control" required>
+                    </div>
+                    <div class="mb-3 col-sm-5">
+                        <input type="date" formControlName="fechaFin" class="form-control" required>
+                    </div>
+                    <div class="mb-3 col-sm-2">
+                        <button type="button" class="btn btn-success" (click)="ObtenerCobranzasPorMes()"><i
+                            class="bi bi-search mx-2" style="color: white;"></i>Buscar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="container" id="facturacion">
+        <div class="mx-5 pt-5">
+            <div class="row border">
+                <div class="col-md-1 bg-light">
+                    <img src="../../../assets/Logo_NMP.png" alt="Logo" style="width: 40px;" class="my-4">
+                </div>
+                <div class="col-md-6 bg-light">
+                    <ul class="list-unstyled my-4">
+                        <li>
+                            <h4>Cobranzas</h4>
+                        </li>
+                        <li>Período: {{ intervalo.fechaInicio | date: 'dd/MM/yyyy'}} - {{ intervalo.fechaFin | date:
+                            'dd/MM/yyyy'}}</li>
+                    </ul>
+                </div>
+                <div class="col-md-5 bg-light">
+                    <ul class="list-unstyled my-4">
+                        <li>Fecha de emisión: {{ fecha | date: 'dd/MM/yyyy' }}</li>
+                        <!-- <li>Otro dato de interés</li> -->
+                    </ul>
+                </div>
+            </div>
+            <div class="row border">
+                <table class="table">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Fecha Liquidación</th>
+                            <th scope="col">Cliente</th>
+                            <th class="moneda" scope="col">Importe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let c of listadoCobranzasMes | filtroCliente: filtroPorCliente">
+                            <td>{{ c.fechaLiquidacion | date: 'dd/MM/yyyy'}}</td>
+                            <td>{{ c.cliente.razonSocial }}</td>
+                            <td class="moneda">{{ c.total | currency }}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th scope="col">TOTALES</th>
+                            <th scope="col">{{ sumaFactras | currency}}</th>
+                            <th scope="col">{{ sumaFactras | currency}}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="mCuentaCorriente">
+    <!-- <div class="container">
+        <div class="mx-5">
+            <form [formGroup]="presupuestoForm">
+                <div class="row">
+                    <div class="mb-3 col-sm-4">
+                        <input type="date" formControlName="fechaInicio" class="form-control" required>
+                    </div>
+                    <div class="mb-3 col-sm-4">
+                        <input type="date" formControlName="fechaFin" class="form-control" required>
+                    </div>
+                    <div class="mb-3 col-sm-10"> 
+                        <select class="form-select" formControlName="clienteId" id="clienteId">
+                            <option selected disabled>Cliente</option>
+                            <option *ngFor="let cli of listaClientes" [value]="cli.id">
+                                {{ cli.razonSocial }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-3 col-sm-2">
+                        <button type="button" class="btn btn-success" (click)="ObtenerPresupuestos()"><i
+                            class="bi bi-search mx-2" style="color: white;"></i>Buscar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div> -->
+    <div class="container" id="presupuestosrep">
+        <div class="mx-5 pt-5">
+            <div class="row border">
+                <div class="col-md-1 bg-light">
+                    <img src="../../../assets/Logo_NMP.png" alt="Logo" style="width: 40px;" class="my-4">
+                </div>
+                <div class="col-md-6 bg-light">
+                    <ul class="list-unstyled my-4">
+                        <li>
+                            <h4>Cuenta Corriente Clientes</h4>
+                        </li>
+                        <!-- <li>Período: {{ intervaloPresupuesto.fechaInicio | date: 'dd/MM/yyyy'}} - {{ intervaloPresupuesto.fechaFin | date:
+                            'dd/MM/yyyy'}}</li> -->
+                    </ul>
+                </div>
+                <div class="col-md-5 bg-light">
+                    <ul class="list-unstyled my-4">
+                        <li>Fecha de emisión: {{ fecha | date: 'dd/MM/yyyy' }}</li>
+                        <!-- <li>Otro dato de interés</li> -->
+                    </ul>
+                </div>
+            </div>
+            <div class="row border">
+                <table class="table">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Cliente</th>
+                            <th scope="col" class="texto-r">Saldo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let lc of listaClientes | paginate: { itemsPerPage: 8, currentPage: page }">
+                            <td>{{ lc.razonSocial }}</td>
+                            <td class="moneda">{{ lc.saldo | currency }}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th scope="col">TOTAL</th>
+                            <th scope="col" class="moneda">{{ totalCuentaCorriente | currency}}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="mPedidos">
+    <div class="container">
+        <div class="mx-5">
+            <form [formGroup]="presupuestoForm">
+                <div class="row">
+                    <div class="mb-3 col-sm-4">
+                        <input type="date" formControlName="fechaInicio" class="form-control" required>
+                    </div>
+                    <div class="mb-3 col-sm-4">
+                        <input type="date" formControlName="fechaFin" class="form-control" required>
+                    </div>
+                    <div class="mb-3 col-sm-2"> 
+                        <!-- <label for="clienteId" class="form-label">Cliente</label> -->
+                        <select class="form-select" formControlName="clienteId" id="clienteId">
+                            <option selected disabled>Cliente</option>
+                            <option *ngFor="let cli of listaClientes" [value]="cli.id">
+                                {{ cli.razonSocial }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-3 col-sm-2">
+                        <button type="button" class="btn btn-success" (click)="ObtenerPresupuestos()"><i
+                            class="bi bi-search mx-2" style="color: white;"></i>Buscar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="container" id="presupuestosrep">
+        <div class="mx-5 pt-5">
+            <div class="row border">
+                <div class="col-md-1 bg-light">
+                    <img src="../../../assets/Logo_NMP.png" alt="Logo" style="width: 40px;" class="my-4">
+                </div>
+                <div class="col-md-6 bg-light">
+                    <ul class="list-unstyled my-4">
+                        <li>
+                            <h4>Presupuestos</h4>
+                        </li>
+                        <li>Período: {{ intervaloPresupuesto.fechaInicio | date: 'dd/MM/yyyy'}} - {{ intervaloPresupuesto.fechaFin | date:
+                            'dd/MM/yyyy'}}</li>
+                    </ul>
+                </div>
+                <div class="col-md-5 bg-light">
+                    <ul class="list-unstyled my-4">
+                        <li>Fecha de emisión: {{ fecha | date: 'dd/MM/yyyy' }}</li>
+                        <!-- <li>Otro dato de interés</li> -->
+                    </ul>
+                </div>
+            </div>
+            <div class="row border">
+                <table class="table">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Numero</th>
+                            <th scope="col">Campaña</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Razón Social</th>
+                            <th scope="col">Aceptado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let lp of listaPresupuestos | paginate: { itemsPerPage: 8, currentPage: page }">
+                            <td>{{ lp.numero }}</td>
+                            <td>{{ lp.campania }}</td>
+                            <td class="moneda">{{ lp.total | currency }}</td>
+                            <td>{{ lp.cliente.razonSocial }}</td>
+                            <td *ngIf="lp.aceptado == 1">SI</td>
+                            <td *ngIf="lp.aceptado == 0">NO</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th scope="col">TOTALES</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col">{{ sumaFactras | currency}}</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-2" *ngIf="mPedidos || mCobranzas || mCuentaCorriente || mFacturacion">
+    <div class="col-md-6"></div>
+    <div class="col-md-4">
+        <button type="button" class="btn btn-success m-2" (click)="pdf()">Descargar</button>
+    </div>
+    <div class="col-md-2"></div>
+</div>

@@ -1,0 +1,256 @@
+<div class="container">
+    <h2>Listado de presupuestos</h2>
+    <input type="text" class="form-control col-md-12" name="filtroPresupuesto" placeholder="Buscar por campania..."
+    [(ngModel)]="filtroPresupuesto">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Nro. Presupuesto</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Campaña</th>
+                <th class="moneda" scope="col">Total</th>
+                <th class="moneda" scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let p of listaPresupuestos | filtroPresupuesto: filtroPresupuesto | paginate: { itemsPerPage: 8, currentPage: page }">
+                <td>{{ p.numero }}</td>
+                <td>{{ p.cliente.razonSocial }}</td>
+                <td>{{ p.campania }}</td>
+                <td class="moneda">{{ p.total | currency }}</td>
+                <td class="moneda">
+                    <div class="btn-group">
+                        <!--Boton ver presupuesto-->
+                        <button data-bs-toggle="modal" data-bs-target="#verModal" type="button"
+                            class="btn btn-outline-secondary">
+                            <i class="bi bi-printer"></i>
+                            <span class="visually-hidden" (click)="VerPresupuesto(p.id)">Button</span>
+                        </button>
+                        <!--Boton ver presupuesto-->
+
+                        <!-- Modal ver -->
+                        <div class="modal fade" id="verModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-xl">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="verModalLabel">Editar presupuesto</h1>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <app-entregable [id]="p.Id">
+                                        </app-entregable>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal ver -->
+
+                        <!--Boton editar presupuesto-->
+                        <!-- <button data-bs-toggle="modal" data-bs-target="#editarModal" type="button"
+                            class="btn btn-outline-secondary">
+                            <i class="bi bi-printer"></i>
+                            <span class="visually-hidden" (click)="VerPresupuesto(p.id)">Button</span>
+                        </button> -->
+                        <!--Boton editar presupuesto-->
+
+                        <!-- Modal editar -->
+                        <!-- <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog  modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="editarModalLabel">Editar presupuesto</h1>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <app-modificacion-presupuesto [id]="p.Id">
+                                        </app-modificacion-presupuesto>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+                        <!-- Modal editar -->
+                        <!--Boton borrar-->
+                        <!-- <button type="button" class="btn btn-outline-secondary">
+                            <i class="bi bi-printer"></i>
+                        </button> -->
+                        <!--Boton borrar-->
+
+                        <!--Boton borrar-->
+                        <button type="button" class="btn btn-outline-secondary" [id]="p.id"
+                            (click)="eliminarPresupuesto(p.id)">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                        <!--Boton borrar-->
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <pagination-controls class="text-center" (pageChange)="page = $event" previousLabel="Anterior"
+        nextLabel="Siguiente"></pagination-controls>
+
+
+    <!--(+) Agregar presupuesto PRIMER MODAL-->
+    <a data-bs-toggle="modal" href="#modalGeneral" role="button" data-toggle="tooltip" data-placement="right"
+        title="Agregar presupuesto" class="customTooltip">
+        <i class="bi bi-plus-circle-fill"></i>
+    </a>
+    <!--(+) Agregar presupuesto PRIMER MODAL-->
+
+    <!--PRIMER MODAL - ALTA PRESUPUESTO-->
+    <div class="modal fade" id="modalGeneral" aria-hidden="true" aria-labelledby="modalAltaPresu" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered  modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="modalAltaPresu">Presupuesto nuevo</h2>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
+                        (click)="limpiarFormularios();"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- CUERPO PRIMER MODAL ALTA PRESUPUESTO-->
+                    <div class="container">
+                        <div class="p-3">
+                            <form [formGroup]="formAgregarPresupuesto" class="row g-3">
+                                <div class="col-md-5">
+                                    <label for="clienteId" class="form-label">Cliente</label>
+                                    <select class="form-select" formControlName="clienteId" id="clienteId">
+                                        <option selected disabled>seleccione...</option>
+                                        <option *ngFor="let c of listaClientes" [value]="c.id">
+                                            {{ c.razonSocial }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="campania" class="form-label">Campaña</label>
+                                    <input type="text" formControlName="campania" id="campania" class="form-control"
+                                        [class.invalido]="controlCompania.touched && controlCompania.hasError('required')">
+                                    <div *ngIf="controlCompania.touched && controlCompania.hasError('required')"
+                                        class="alert alert-danger" role="alert">
+                                        ¡El campo campaña es requerido!
+                                    </div>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end p-1">
+                                    <!-- <button type="button" (click)="crearPresupuesto()"><i
+                                            class="bi bi-plus-circle-fill"></i>
+                                    </button> -->
+                                    <a (click)="crearPresupuesto()">
+                                        <i class="bi bi-plus-circle-fill"></i>
+                                    </a>
+                                </div>
+                            </form>
+
+                            <div *ngIf="mostrar">
+                                <form [formGroup]="productoForm" (ngSubmit)="onSubmit()">
+                                    <div formArrayName="productos">
+                                        <div *ngFor="let producto of productos().controls; let productoIndex=index">
+                                            <div [formGroupName]="productoIndex">
+                                                <div class="row encabezado py-3">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="nombreProducto">Nombre Producto</label>
+                                                            <input formControlName="nombreProducto" id="nombreProducto"
+                                                                type="text" class="form-control" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="banioProducto">Baño Producto</label>
+                                                            <input formControlName="banioProducto" id="banioProducto"
+                                                                type="text" class="form-control" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <div class="form-group">
+                                                            <label for="cantidadProductos">Cantidad</label>
+                                                            <input formControlName="cantidadProductos"
+                                                                id="cantidadProductos" type="number"
+                                                                class="form-control" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2 pt-4">
+                                                        <button type="button" class="btn btn-outline-secondary"
+                                                            (click)="removeProducto(productoIndex)">
+                                                            <i class="bi bi-trash-fill"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div formArrayName="DetalleProductos">
+                                                    <div
+                                                        *ngFor="let insumo of productoInsumo(productoIndex).controls; let insumoIndex=index">
+                                                        <div [formGroupName]="insumoIndex">
+                                                            <div class="row cuerpo py-3">
+                                                                <div class="col-md-6">
+                                                                    <label for="Id" class="form-label">Insumo</label>
+                                                                    <select class="form-select"
+                                                                        formControlName="InsumoId" id="Id"
+                                                                        (change)="ObtenerInsumoPorId($any($event.target).value)">
+                                                                        <option selected disabled>seleccione...</option>
+                                                                        <option *ngFor="let i of listaInsumos"
+                                                                            value={{i.id}}>
+                                                                            {{i.descripcion}}
+                                                                        </option>
+                                                                    </select>
+                                                                    <div *ngIf="mostrarPrecio" id="Insumo"
+                                                                        class="form-text">Último precio $
+                                                                        {{
+                                                                        insumoEncontrado.precio }} de fecha {{
+                                                                        insumoEncontrado.fechaCompra | date:
+                                                                        'dd/MM/yyyy' }}</div>
+                                                                </div>
+                                                                <div class="col-md-2">
+                                                                    <div class="form-group">
+                                                                        <label for="cantidad">Cantidad</label>
+                                                                        <input formControlName="Cantidad" id="cantidad"
+                                                                            type="number" class="form-control" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-2">
+                                                                    <div class="form-group">
+                                                                        <label for="precioInsumo">Precio insumo</label>
+                                                                        <input formControlName="precioInsumo"
+                                                                            id="precioInsumo" type="number"
+                                                                            class="form-control" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-2 pt-4">
+                                                                    <button type="button"
+                                                                        class="btn btn-outline-secondary"
+                                                                        (click)="removeProductoInsumo(productoIndex,insumoIndex)">
+                                                                        <i class="bi bi-trash-fill"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn btn-success m-2"
+                                                    (click)="addProductoInsumo(productoIndex)">Agregar insumo</button>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-success" (click)="addProducto()">Agregar
+                                            producto</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- CUERPO PRIMER MODAL ALTA PRESUPUESTO-->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        (click)="limpiarFormularios()">Cerrar</button>
+                    <a data-bs-toggle="modal" data-bs-target="#modalGeneral" data-bs-toggle="modal"
+                        data-bs-dismiss="modal">
+                        <button class="btn btn-success" (click)=" onSubmit()">Guardar presupuesto</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--PRIMER MODAL - ALTA PRESUPUESTO-->
+</div>

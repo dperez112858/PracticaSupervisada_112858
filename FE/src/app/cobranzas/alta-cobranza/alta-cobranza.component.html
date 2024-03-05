@@ -1,0 +1,99 @@
+<div class="container">
+    <form [formGroup]="cobranzaForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="form-group">
+                    <label for="clienteId">Cliente</label>
+                    <select formControlName="clienteId" id="clienteId" class="form-control" (change)="ObtenerPorCliente($any($event.target).value)">
+                        <option selected disabled>seleccione...</option>
+                        <option *ngFor="let cliente of listaClientes" [value]="cliente.id">{{ cliente.razonSocial }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="fechaLiquidacion">Fecha de Liquidación</label>
+                    <input formControlName="fechaLiquidacion" id="fechaLiquidacion" type="date" class="form-control" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="total">Total</label>
+                    <input formControlName="total" id="total" type="number" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div formArrayName="detalleCobranza">
+                <div *ngFor="let detalle of detalleCobranza.controls; let i = index" [formGroupName]="i">
+                    <div class="row py-2">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="importeCobrado">Cobrado</label>
+                                <input formControlName="importeCobrado" id="importeCobrado" type="number"
+                                    class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="importeRetenido">Retenido</label>
+                                <input formControlName="importeRetenido" id="importeRetenido" type="number"
+                                    class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="importeTotal">Importe Total</label>
+                                <input formControlName="importeTotal" id="importeTotal" type="number"
+                                    class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="fechaPago">Fecha de pago</label>
+                                <input formControlName="fechaPago" id="fechaPago" type="date" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="tipoPagoId">Tipo</label>
+                                <select formControlName="tipoPagoId" id="tipoPagoId" class="form-control">
+                                    <option value="f2b893ac-de32-4f4d-9818-5549bd16e41d">Transferencia</option>
+                                    <option value="444ca65c-aa41-4e8d-b923-8644cec6e71b">Echeq</option>
+                                    <option value="eb10df81-056e-4b7d-be27-47db4ebaad99">Cheque</option>
+                                    <option value="4f21243f-38bc-46fd-bf8a-4e724628f14a">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <label for="button">Acción</label>
+                            <div class="btn-group">
+                                <button type="button" data-bs-dismiss="modal" class="btn  btn-outline-secondary"
+                                    (click)="removeDetalleCobranza(i)">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-2">
+                <a (click)="addDetalleCobranza()">
+                    <i class="bi bi-plus-circle-fill"></i>
+                </a>
+            </div>
+            <div class="col-8"></div>
+            <div class="col-2">
+                <!-- <button type="button" class="btn btn-primary" (click)="addDetalleCobranza()">Agregar cobranza</button> -->
+                <button type="submit" class="btn btn-success" data-bs-dismiss="modal">Guardar</button>
+            </div>
+        </div>
+    </form>
+
+</div>

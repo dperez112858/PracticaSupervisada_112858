@@ -1,0 +1,89 @@
+.bi-plus-circle-fill {
+    color: #009677;
+    font-size: 2rem;
+}
+
+.bi-pencil-fill {
+    color: #009677;
+}
+.bi-pencil-square{
+    color: #009677;
+}
+
+.bi-search {
+    color: #009677;
+}
+
+.bi-printer {
+    color: #009677;
+}
+
+.bi-trash3-fill {
+    color: #FF5252;
+}
+
+.bi-trash-fill {
+    color: #FF5252;
+}
+
+.tarjeta-1 {
+    background-color: #40856E !important;
+    color: #ffffff !important;
+}
+
+.tarjeta-2 {
+    background-color: #807465 !important;
+    color: #ffffff !important;
+}
+
+.tarjeta-3 {
+    background-color: #A06C61 !important;
+    color: #ffffff !important;
+}
+
+.tarjeta-4 {
+    background-color: #C0635C !important;
+    color: #ffffff !important;
+}
+
+.moneda {
+    text-align: right;
+}
+
+.texto-r {
+    text-align: right;
+}
+.texto-l {
+    text-align: left !important;
+}
+
+.modal-header{
+    background-color: #009677 !important;
+    color: #ffffff !important;
+}
+.highcharts-background {
+    fill: none;
+}
+
+input.invalido {
+    border-color: red;
+}
+
+.ngx-pagination .current {
+    background: #40856E !important;
+}
+
+.encabezadop{
+    background: #cfcfcf;
+}
+.encabezado{
+    background: gainsboro;
+}
+
+.cuerpo{
+    background: whitesmoke;
+}
+
+.customTooltip + .tooltip > .tooltip-inner {
+    background-color: #FF5252 !important;
+}

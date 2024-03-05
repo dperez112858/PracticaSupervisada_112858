@@ -1,0 +1,123 @@
+<div class="container">
+    <form [formGroup]="formAgregarPresupuesto" class="row g-3">
+        <div class="col-md-5">
+            <label for="ClienteId" class="form-label">Cliente</label>
+            <select class="form-select" formControlName="ClienteId" id="ClienteId">
+                <option selected disabled>seleccione...</option>
+                <option *ngFor="let c of listaClientes" [value]="c.id">
+                    {{ c.razonSocial }}
+                </option>
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label for="campania" class="form-label">Campaña</label>
+            <input type="text" formControlName="campania" id="campania" class="form-control">
+        </div>
+    </form>
+
+    <!--LISTADO DE PRODUCTOS-->
+    <table class="table" *ngIf="formAgregarPresupuesto.valid">
+        <thead>
+            <tr>
+
+
+                <th scope="col">Costo unitario</th>
+                <th scope="col">Utilidad</th>
+                <th scope="col">Total</th>
+                <th scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let p of productos">
+
+
+                <td>{{p.costoProducto}}</td>
+                <td>{{p.utilidad}}</td>
+                <td>{{p.costoTotal}}</td>
+                <td>
+                    <div class="btn-group">
+                        <!-- <button type="button" class="btn btn-outline-secondary" (click)="alterCustomer(customers)"> -->
+
+                        <!--Boton editar-->
+                        <button data-bs-toggle="modal" data-bs-target="#editarModal" type="button"
+                            class="btn btn-outline-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-pencil" viewBox="0 0 16 16">
+                                <path
+                                    d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z">
+                                </path>
+                            </svg>
+                            <!--<span class="visually-hidden" (click)="alterCustomer(customers)">Button</span>-->
+                        </button>
+                        <!--Boton editar-->
+
+                        <!-- Modal editar cliente -->
+                        <!-- <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog  modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="editarModalLabel">Editar producto</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <app-modificacion-cliente [id]="p.Id"
+                                            (click)="EditarProducto()"></app-modificacion-cliente>
+                                    </div>
+                                    <div class="modal-footer">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+                        <!-- Modal editar cliente -->
+
+                        <!--AQUÍ COLOCAR app-baja-producto-->
+
+                        <!-- Boton consultar cliente -->
+                        <button type="button" class="btn btn-outline-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-search" viewBox="0 0 16 16">
+                                <path
+                                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z">
+                                </path>
+                            </svg>
+                        </button>
+                        <!-- Boton consultar cliente -->
+
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!--LISTADO DE PRODUCTOS-->
+
+
+
+
+
+  
+    <!-- <a data-bs-toggle="modal" data-bs-target="#altaProdModal" data-bs-toggle="modal" data-bs-dismiss="modal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#009677" class="bi bi-plus-circle-fill"
+            viewBox="0 0 16 16">
+            <path
+                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
+        </svg></a>
+
+    
+    <div class="modal fade" id="altaProdModal" tabindex="-1" aria-labelledby="altaProdModal" aria-hidden="true">
+        <div class="modal-dialog  modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="altaProdModal">Crear producto</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <app-alta-producto></app-alta-producto>
+                </div>
+            </div>
+        </div>
+    </div> -->
+</div>

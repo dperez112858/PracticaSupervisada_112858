@@ -1,0 +1,106 @@
+<form [formGroup]="formAgregarProducto" (submit)="guardarProducto()">
+  <div class="row">
+    <div class="col-md-6">
+      <label for="nombre" class="form-label">Nombre del producto</label>
+      <input type="text" formControlName="nombre" id="nombre" class="form-control">
+    </div>
+    <div class="col-md-6">
+      <label for="Banio" class="form-label">Baño</label>
+      <input type="text" formControlName="Banio" id="Banio" class="form-control">
+    </div>
+  </div>
+  <hr>
+  <h5>Insumos</h5>
+  {{ listaDetalleProducto | json }}
+  <table class="table" *ngIf="verDetalle">
+    <thead>
+      <tr>
+        <th scope="col">Insumo</th>
+        <th scope="col">Cantidad</th>
+        <th scope="col">Precio</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let d of listaDetalleProducto">
+        <td>{{ d.Insumo.nombre }}</td>
+        <td>{{ d.Cantidad }}</td>
+        <td>{{ d.Precio }}</td>
+    </tbody>
+  </table>
+
+  <!--Boton agregar-->
+  <div *ngIf="ver==false">
+    <a type="button" (click)="guardarProducto();" *ngIf="formAgregarProducto.valid">
+      <i class="bi bi-plus-circle-fill"></i>
+    </a>
+  </div>
+  <!--Boton agregar-->
+  <div *ngIf="ver==true">
+    <form [formGroup]="formAgregarDetalleProducto" (submit)="guardarDetalleProducto()">
+      <div class="row">
+        <div class="col-md-8">
+          <!-- <label for="lista" class="form-label">Insumo</label>
+          <input class="form-control" list="datalistOptions" id="lista" name="rta" placeholder="Buscar insumo..."
+            (change)="ObtenerInsumoPorId($any($event.target).value)">
+          <datalist id="datalistOptions">
+            <option *ngFor="let i of listaInsumos" data-value="{{i.id}}">
+              {{i.descripcion}}
+            </option>
+            <input type="hiden" name="rta" id="lista-hidden">
+          </datalist>
+          <div *ngIf="insumo.precio" id="Insumo" class="form-text">Último precio $ {{ insumo.precio }} de fecha {{
+            insumo.fechaCompra | date: 'dd/MM/yyyy' }}</div>
+        </div> -->
+
+
+        <label for="InsumoId" class="form-label">Insumo</label>
+          <select class="form-select" formControlName="InsumoId" id="InsumoId"
+            (change)="ObtenerInsumoPorId($any($event.target).value)">
+            <option selected disabled>seleccione...</option>
+            <option *ngFor="let i of listaInsumos" value={{i.id}}>
+              {{i.descripcion}}
+            </option>
+          </select>
+          <div *ngIf="mostrarPrecio" id="Insumo" class="form-text">Último precio $ {{ insumo.precio }} de fecha {{
+            insumo.fechaCompra | date: 'dd/MM/yyyy' }}</div>
+        </div>
+
+
+
+        <div class="col-md-2">
+          <label for="Cantidad" class="form-label">Cantidad</label>
+          <input type="number" formControlName="Cantidad" id="Cantidad" class="form-control">
+        </div>
+        <div class="col-md-2">
+          <label for="PrecioInsumo" class="form-label">Precio Unitario</label>
+          <input type="number" formControlName="PrecioInsumo" id="PrecioInsumo" class="form-control">
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div (click)="guardarDetalleProducto();">
+          <!--Boton agregar-->
+          <a type="button">
+            <i class="bi bi-plus-circle-fill"></i>
+          </a>
+          <!--Boton agregar-->
+        </div>
+      </div>
+    </form>
+  </div>
+  <hr>
+
+  <div class="row">
+    <div class="col-md-6">
+    </div>
+    <div class="col-md-6">
+      <label for="costoProducto" class="form-label d-inline ">Costo del Producto</label>
+      <input type="text" formControlName="costoProducto" id="costoProducto" class="form-control">
+      <label for="Utilidad" class="form-label">Utilidad</label>
+      <input type="text" formControlName="Utilidad" id="Utilidad" class="form-control">
+      <label for="CostoTotal" class="form-label">Total</label>
+      <input type="text" formControlName="CostoTotal" id="CostoTotal" class="form-control">
+    </div>
+  </div>
+</form>
+

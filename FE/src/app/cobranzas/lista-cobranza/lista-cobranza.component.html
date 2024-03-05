@@ -1,0 +1,186 @@
+<div class="container">
+    <h2>Listado de liquidaciones</h2>
+    <input type="text" class="form-control col-md-12" name="filtroPorInsumo"
+        placeholder="Ingrese parámetro de búsqueda...">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Fecha liquidación</th>
+                <th scope="col">Cliente</th>
+                <th class="moneda" scope="col">Importe cobrado</th>
+                <th class="moneda" scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let p of listaCobranzas | paginate: { itemsPerPage: 8, currentPage: page }">
+                <td>{{ p.fechaLiquidacion | formatoFecha }}</td>
+                <td>{{ p.cliente.razonSocial }}</td>
+                <td class="moneda">{{ p.total | currency }}</td>
+                <td class="moneda">
+                    <div class="btn-group">
+
+                        <!--Boton modificar cobranza-->
+                        <button data-bs-toggle="modal" data-bs-target="#editarModal" type="button"
+                            (click)="EditarCobranza(p.id)" class="btn btn-outline-secondary">
+                            <i class="bi bi-pencil-square"></i>
+                            <span class="visually-hidden" (click)="EditarCobranza(p.id)">Button</span>
+                        </button>
+
+                        <!--Boton modificar cobranza-->
+                        <!--Modal modificar cobranza-->
+                        <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog  modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="editarModalLabel">Editar cobranza</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close">
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="container">
+                                            <form [formGroup]="formEditarCobranza" class="row g-3">
+                                                <input type="hidden" formControlName="id" class="form-control" id="id">
+                                                <div class="col-md-4 texto-l">
+                                                    <label for="fechaLiquidacion" class="form-label">Fecha de
+                                                        liquidación</label>
+                                                    <input type="date" formControlName="fechaLiquidacion"
+                                                        id="fechaLiquidacion" class="form-control">
+                                                </div>
+                                                <div class="col-md-4 texto-l">
+                                                    <label for="clienteId" class="form-label">Cliente</label>
+                                                    <select class="form-select" formControlName="clienteId"
+                                                        id="clienteId">
+                                                        <option default disabled>seleccione...</option>
+                                                        <option *ngFor="let cli of listaCliente" [value]="cli.id">
+                                                            {{ cli.razonSocial }}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4 texto-l">
+                                                    <label for="total" class="form-label">Total</label>
+                                                    <input type="number" formControlName="total" id="total"
+                                                        class="form-control">
+                                                </div>
+                                                <div class="row">
+                                                    <div formArrayName="detalleCobranza">
+                                                        <div *ngFor="let detalle of detalleCobranza.controls; let i = index"
+                                                            [formGroupName]="i">
+                                                            <input type="hidden" formControlName="id"
+                                                                class="form-control" id="id">
+                                                            <input type="hidden" formControlName="id"
+                                                                class="form-control" id="cobranzaId">
+                                                            <div class="row py-2">
+                                                                <div class="col-md-2 texto-l">
+                                                                    <div class="form-group">
+                                                                        <label for="importeCobrado">Cobrado</label>
+                                                                        <input formControlName="importeCobrado"
+                                                                            id="importeCobrado" type="number"
+                                                                            class="form-control" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-2 texto-l">
+                                                                    <div class="form-group">
+                                                                        <label for="importeRetenido">Retenido</label>
+                                                                        <input formControlName="importeRetenido"
+                                                                            id="importeRetenido" type="number"
+                                                                            class="form-control" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-2 texto-l">
+                                                                    <div class="form-group">
+                                                                        <label for="importeTotal">Importe Total</label>
+                                                                        <!-- <input formControlName="importeTotal" id="importeTotal" type="number"
+                                                                            class="form-control" [readonly]="true"(focus)="calcularTotal(i)"/> -->
+                                                                        <input formControlName="importeTotal"
+                                                                            id="importeTotal" type="number"
+                                                                            class="form-control" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3 texto-l">
+                                                                    <div class="form-group">
+                                                                        <label for="fechaPago">Fecha de pago</label>
+                                                                        <input formControlName="fechaPago"
+                                                                            id="fechaPago" type="date"
+                                                                            class="form-control" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-3 texto-l">
+                                                                    <div class="form-group">
+                                                                        <label for="tipoPagoId">Tipo de pago</label>
+                                                                        <select formControlName="tipoPagoId"
+                                                                            id="tipoPagoId" class="form-control">
+                                                                            <option
+                                                                                value="f2b893ac-de32-4f4d-9818-5549bd16e41d">
+                                                                                Transferencia</option>
+                                                                            <option
+                                                                                value="444ca65c-aa41-4e8d-b923-8644cec6e71b">
+                                                                                Echeq</option>
+                                                                            <option
+                                                                                value="eb10df81-056e-4b7d-be27-47db4ebaad99">
+                                                                                Cheque</option>
+                                                                            <option
+                                                                                value="4f21243f-38bc-46fd-bf8a-4e724628f14a">
+                                                                                Otro</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cerrar</button>
+                                        <button class="btn btn-success" data-bs-dismiss="modal"
+                                            (click)="guardar()">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal modificaar cobranza -->
+
+                        <!--Boton baja insumo-->
+                        <button type="button" class="btn btn-outline-secondary" (click)="eliminarCobranza(p.id)">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                        <!--Boton baja insumo-->
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <pagination-controls class="text-center" (pageChange)="page = $event" previousLabel="Anterior"
+        nextLabel="Siguiente"></pagination-controls>
+
+    <!--Boton (+) agregar cobranza-->
+    <a data-bs-toggle="modal" data-bs-target="#altaModal">
+        <i class="bi bi-plus-circle-fill"></i>
+    </a>
+    <!--Boton (+) agregar cobranza-->
+
+    <!-- Modal alta cobranza -->
+    <div class="modal fade" id="altaModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="altaModalLabel">Agregar cobranza</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <app-alta-cobranza></app-alta-cobranza>
+                </div>
+                <!-- <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary">Save changes</button>
+                    </div> -->
+            </div>
+        </div>
+    </div>
+</div>

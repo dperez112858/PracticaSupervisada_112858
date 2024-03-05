@@ -1,0 +1,1165 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 14.2
+-- Dumped by pg_dump version 14.2
+
+-- Started on 2024-03-05 19:21:07
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+DROP DATABASE "NMP_DB";
+--
+-- TOC entry 3442 (class 1262 OID 50937)
+-- Name: NMP_DB; Type: DATABASE; Schema: -; Owner: claseProg3
+--
+
+CREATE DATABASE "NMP_DB" WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'Spanish_Spain.1252';
+
+
+ALTER DATABASE "NMP_DB" OWNER TO "claseProg3";
+
+\connect "NMP_DB"
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 209 (class 1259 OID 50938)
+-- Name: Cliente; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."Cliente" (
+    "Id" uuid NOT NULL,
+    "RazonSocial" text NOT NULL,
+    "Cuit" text NOT NULL,
+    "Calle" text NOT NULL,
+    "Numero" text NOT NULL,
+    "CodigoPostal" text,
+    "Telefono" text,
+    "NombreContacto" text,
+    "Email" text,
+    "Comentario" text,
+    "LocalidadId" uuid,
+    "CondicionIvaId" uuid NOT NULL,
+    "Activo" boolean DEFAULT false NOT NULL,
+    "Saldo" numeric(10,2)
+);
+
+
+ALTER TABLE public."Cliente" OWNER TO "claseProg3";
+
+--
+-- TOC entry 210 (class 1259 OID 50944)
+-- Name: Cobranza; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."Cobranza" (
+    "Id" uuid NOT NULL,
+    "FechaLiquidacion" timestamp with time zone NOT NULL,
+    "Total" double precision NOT NULL,
+    "ClienteId" uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid NOT NULL
+);
+
+
+ALTER TABLE public."Cobranza" OWNER TO "claseProg3";
+
+--
+-- TOC entry 211 (class 1259 OID 50948)
+-- Name: CondicionIva; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."CondicionIva" (
+    "Id" uuid NOT NULL,
+    "Nombre" text NOT NULL
+);
+
+
+ALTER TABLE public."CondicionIva" OWNER TO "claseProg3";
+
+--
+-- TOC entry 212 (class 1259 OID 50953)
+-- Name: DetalleCobranza; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."DetalleCobranza" (
+    "Id" uuid NOT NULL,
+    "ImporteCobrado" double precision NOT NULL,
+    "ImporteRetenido" double precision NOT NULL,
+    "ImporteTotal" double precision NOT NULL,
+    "FacturaId" uuid NOT NULL,
+    "FechaPago" timestamp with time zone NOT NULL,
+    "TipoPagoId" uuid NOT NULL,
+    "CobranzaId" uuid NOT NULL
+);
+
+
+ALTER TABLE public."DetalleCobranza" OWNER TO "claseProg3";
+
+--
+-- TOC entry 213 (class 1259 OID 50956)
+-- Name: DetallePresupuesto; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."DetallePresupuesto" (
+    "Id" uuid NOT NULL,
+    "CantidadProductos" integer NOT NULL,
+    "PresupuestoId" uuid NOT NULL,
+    "ProductoId" uuid NOT NULL
+);
+
+
+ALTER TABLE public."DetallePresupuesto" OWNER TO "claseProg3";
+
+--
+-- TOC entry 214 (class 1259 OID 50959)
+-- Name: DetalleProducto; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."DetalleProducto" (
+    "Id" uuid NOT NULL,
+    total double precision NOT NULL,
+    "Cantidad" integer NOT NULL,
+    "InsumoId" uuid NOT NULL,
+    "ProductoId" uuid NOT NULL,
+    "precioInsumo" double precision DEFAULT 0.0 NOT NULL,
+    "FechaCreacion" timestamp with time zone
+);
+
+
+ALTER TABLE public."DetalleProducto" OWNER TO "claseProg3";
+
+--
+-- TOC entry 215 (class 1259 OID 50963)
+-- Name: Factura; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."Factura" (
+    "Id" uuid NOT NULL,
+    "Fecha" timestamp with time zone NOT NULL,
+    "TipoComprobante" text NOT NULL,
+    "NetoGravado" double precision NOT NULL,
+    "Iva" double precision NOT NULL,
+    "TipoCambio" double precision,
+    "Total" double precision NOT NULL,
+    "ClienteId" uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid NOT NULL,
+    "Numero" text DEFAULT ''::text NOT NULL,
+    "Dolar" boolean,
+    "Cancelada" boolean,
+    "Saldo" double precision DEFAULT 0.0 NOT NULL
+);
+
+
+ALTER TABLE public."Factura" OWNER TO "claseProg3";
+
+--
+-- TOC entry 216 (class 1259 OID 50971)
+-- Name: Insumo; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."Insumo" (
+    "Id" uuid NOT NULL,
+    "Descripcion" text NOT NULL,
+    "Precio" double precision NOT NULL,
+    "FechaCompra" timestamp with time zone NOT NULL,
+    "ProveedorId" uuid NOT NULL,
+    "Activo" boolean DEFAULT false NOT NULL
+);
+
+
+ALTER TABLE public."Insumo" OWNER TO "claseProg3";
+
+--
+-- TOC entry 217 (class 1259 OID 50977)
+-- Name: Localidad; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."Localidad" (
+    "Id" uuid NOT NULL,
+    "Nombre" text NOT NULL,
+    "ProvinciaId" uuid NOT NULL
+);
+
+
+ALTER TABLE public."Localidad" OWNER TO "claseProg3";
+
+--
+-- TOC entry 218 (class 1259 OID 50982)
+-- Name: Presupuesto; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."Presupuesto" (
+    "Id" uuid NOT NULL,
+    "Numero" integer NOT NULL,
+    campania text,
+    "Total" double precision,
+    "ClienteId" uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
+    "Activo" boolean DEFAULT false NOT NULL,
+    "Aceptado" boolean DEFAULT false NOT NULL,
+    "Fecha" date
+);
+
+
+ALTER TABLE public."Presupuesto" OWNER TO "claseProg3";
+
+--
+-- TOC entry 219 (class 1259 OID 50990)
+-- Name: Presupuesto_Numero_seq; Type: SEQUENCE; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE public."Presupuesto" ALTER COLUMN "Numero" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public."Presupuesto_Numero_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 220 (class 1259 OID 50991)
+-- Name: Producto; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."Producto" (
+    "Id" uuid NOT NULL,
+    "nombreProducto" text NOT NULL,
+    "costoProducto" double precision,
+    utilidad double precision,
+    "costoTotal" double precision,
+    "FechaCreacion" timestamp with time zone DEFAULT '-infinity'::timestamp with time zone,
+    "banioProducto" text DEFAULT ''::text NOT NULL,
+    "cantidadProductos" integer DEFAULT 0 NOT NULL,
+    "PresupuestoId" uuid
+);
+
+
+ALTER TABLE public."Producto" OWNER TO "claseProg3";
+
+--
+-- TOC entry 221 (class 1259 OID 50999)
+-- Name: Proveedor; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."Proveedor" (
+    "Id" uuid NOT NULL,
+    "RazonSocial" text NOT NULL,
+    "Cuit" text NOT NULL,
+    "Calle" text NOT NULL,
+    "Numero" text NOT NULL,
+    "CodigoPostal" text,
+    "Telefono" text,
+    "NombreContacto" text,
+    "Email" text,
+    "Comentario" text,
+    "CondicionIvaId" uuid NOT NULL,
+    "LocalidadId" uuid NOT NULL,
+    "Activo" boolean DEFAULT false NOT NULL
+);
+
+
+ALTER TABLE public."Proveedor" OWNER TO "claseProg3";
+
+--
+-- TOC entry 222 (class 1259 OID 51005)
+-- Name: Provincia; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."Provincia" (
+    "Id" uuid NOT NULL,
+    "Nombre" text NOT NULL
+);
+
+
+ALTER TABLE public."Provincia" OWNER TO "claseProg3";
+
+--
+-- TOC entry 223 (class 1259 OID 51010)
+-- Name: TipoPago; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."TipoPago" (
+    "Id" uuid NOT NULL,
+    "Nombre" text NOT NULL
+);
+
+
+ALTER TABLE public."TipoPago" OWNER TO "claseProg3";
+
+--
+-- TOC entry 224 (class 1259 OID 51015)
+-- Name: __EFMigrationsHistory; Type: TABLE; Schema: public; Owner: claseProg3
+--
+
+CREATE TABLE public."__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public."__EFMigrationsHistory" OWNER TO "claseProg3";
+
+--
+-- TOC entry 225 (class 1259 OID 51018)
+-- Name: pedidospormescliente; Type: VIEW; Schema: public; Owner: claseProg3
+--
+
+CREATE VIEW public.pedidospormescliente AS
+ SELECT to_char("Factura"."Fecha", 'YYYY-MM'::text) AS mes_anio,
+    count("Factura"."Fecha") AS cant_pedidos,
+    "Factura"."ClienteId"
+   FROM public."Factura"
+  GROUP BY (to_char("Factura"."Fecha", 'YYYY-MM'::text)), "Factura"."ClienteId";
+
+
+ALTER TABLE public.pedidospormescliente OWNER TO "claseProg3";
+
+--
+-- TOC entry 226 (class 1259 OID 51022)
+-- Name: pedidospormesclienteid; Type: VIEW; Schema: public; Owner: claseProg3
+--
+
+CREATE VIEW public.pedidospormesclienteid AS
+ SELECT to_char("Factura"."Fecha", 'YYYY-MM'::text) AS mes_anio,
+    count("Factura"."Fecha") AS cant_pedidos,
+    "Factura"."ClienteId",
+    "Factura"."Id"
+   FROM public."Factura"
+  GROUP BY (to_char("Factura"."Fecha", 'YYYY-MM'::text)), "Factura"."ClienteId", "Factura"."Id";
+
+
+ALTER TABLE public.pedidospormesclienteid OWNER TO "claseProg3";
+
+--
+-- TOC entry 3421 (class 0 OID 50938)
+-- Dependencies: 209
+-- Data for Name: Cliente; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."Cliente" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "LocalidadId", "CondicionIvaId", "Activo", "Saldo") VALUES ('4f2897d8-54f5-48a6-a34e-76ef546734aa', 'Wanama', '20134073129', 'Soler', '1450', '1084', '5555-5555', 'Juana', 'juana@wanama.com.ar', '', '967c0f13-0923-45b1-9e65-c6630e499415', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', true, 0.00);
+INSERT INTO public."Cliente" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "LocalidadId", "CondicionIvaId", "Activo", "Saldo") VALUES ('6ab56ff1-442f-42c8-a5d7-01afba80d29d', 'JST Justa Osadia', '20147675187', 'Paraguay', '4979', '1425', '57892706', 'Guchi Scaglia', 'guchi@justaosadia.com', '', '967c0f13-0923-45b1-9e65-c6630e499415', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', true, 0.00);
+INSERT INTO public."Cliente" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "LocalidadId", "CondicionIvaId", "Activo", "Saldo") VALUES ('c1bcd066-99b5-4340-b906-589613295810', 'Numa S.R.L.', '30715008013', 'Salguero', '1234', '1084', '5555-5555', 'Juana', 'juana@numa.com', '', '967c0f13-0923-45b1-9e65-c6630e499415', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', true, 0.00);
+INSERT INTO public."Cliente" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "LocalidadId", "CondicionIvaId", "Activo", "Saldo") VALUES ('98915bfc-69b2-4228-b2d9-7e2be196db99', 'Custome SRL', '30686302586', 'Pres. Luis Sáenz Peña', '250', '1081', '+541140958008', 'Mili', 'mpetro@erert.com', '', '967c0f13-0923-45b1-9e65-c6630e499415', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', true, 0.00);
+INSERT INTO public."Cliente" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "LocalidadId", "CondicionIvaId", "Activo", "Saldo") VALUES ('0e8042c4-017d-4678-944a-98c4aaf330e8', 'TISCH S.R.L.', '30714126225', 'De Los Constituyentes', '2985', '1427', '3607-4600', 'Juana', 'juana@jch.com', 'jaz', '967c0f13-0923-45b1-9e65-c6630e499415', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', true, -298774.20);
+INSERT INTO public."Cliente" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "LocalidadId", "CondicionIvaId", "Activo", "Saldo") VALUES ('4998080d-9415-43e3-a8cc-38b8205acbf4', 'JUSTA PETRA S.R.L.', '30715008013', 'Gurruchaga', '1672', '1414', '2149-1986', 'Gichi', 'guchi@jp.com', 'cliente desde 2018', '967c0f13-0923-45b1-9e65-c6630e499415', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', true, -135211.32);
+
+
+--
+-- TOC entry 3422 (class 0 OID 50944)
+-- Dependencies: 210
+-- Data for Name: Cobranza; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('de6841d4-06ca-4244-9a7c-314e859bbe62', '2023-02-01 00:00:00+00', 38877.3, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('d24baeff-16b2-43c1-b22f-f9d41b8dfbc3', '2023-02-01 00:00:00+00', 106722, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('751a0dcf-ec1f-47d2-937a-a07d2289fcea', '2023-02-01 00:00:00+00', 20908.8, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('beb4735a-5e95-4ef6-ba91-02b6e66be479', '2023-03-09 00:00:00+00', 59290, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('cf71f4ee-18ae-4569-996b-b792b2f46b69', '2023-03-18 00:00:00+00', 61661.6, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('f45e19a7-e246-4fe0-8eec-ba52de144989', '2023-04-01 00:00:00+00', 7840.8, '0e8042c4-017d-4678-944a-98c4aaf330e8');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('83e0c075-8768-40fe-83a6-a3fd773ef40c', '2023-04-01 00:00:00+00', 63771.84, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('40a35624-e8b5-4dc5-8567-868596c2fc67', '2023-05-04 00:00:00+00', 81892.8, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('97c4ab79-5656-4459-ab51-870785631170', '2023-04-12 00:00:00+00', 719116, '0e8042c4-017d-4678-944a-98c4aaf330e8');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('69d0314e-9238-49de-903e-d2ce9b6eb719', '2023-05-11 00:00:00+00', 46851.2, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('4ab89460-0b4d-4474-8f33-d08128a314d2', '2023-05-18 00:00:00+00', 94394.52, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('5cfe8240-aa1f-4462-9a37-30f9c5e928df', '2023-05-18 00:00:00+00', 92202, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('c61aad6c-456d-44ec-b377-535ed240b20f', '2023-05-20 00:00:00+00', 37185.72, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('b91f770e-2086-4e7e-8eed-9b8fd82e201d', '2023-05-20 00:00:00+00', 28211.15, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('5a0a91b1-3498-4140-ad62-e8cc4d199ae2', '2023-06-01 00:00:00+00', 95657.76, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('cebfddf2-bd78-4de3-920f-55a8b584cfe3', '2023-05-31 00:00:00+00', 143385, '0e8042c4-017d-4678-944a-98c4aaf330e8');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('3aeb1713-54a2-4ed4-b5c8-13ad0fd0bc3f', '2023-06-18 00:00:00+00', 135520, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('d5c9e0c0-6174-45d2-9601-d745b5d54f88', '2023-06-21 00:00:00+00', 162333.6, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('d8391e64-226c-411f-b2f4-40097fb2fd2e', '2023-06-28 00:00:00+00', 81892.8, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('d30c9eda-7c68-44c3-bb94-2efce5e502b5', '2023-07-09 00:00:00+00', 40946.4, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('c0398b15-82f5-4d1e-a397-44bbf8c4643d', '2023-01-31 00:00:00+00', 87720.16, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('37ffaf74-eb28-4c89-9c07-d0b701dc71c4', '2023-07-12 00:00:00+00', 466769.6, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('72b5cdc2-defd-472a-b6ec-466d600374fc', '2023-07-22 00:00:00+00', 567379.2, '0e8042c4-017d-4678-944a-98c4aaf330e8');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('fd9ce8aa-38ef-4995-ad26-ddecbaa261ed', '2023-08-26 00:00:00+00', 39494.4, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('6d0ed8da-4336-4225-ae39-f52a0ce6a43f', '2023-08-05 00:00:00+00', 243500.4, '98915bfc-69b2-4228-b2d9-7e2be196db99');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('3df51d77-d17a-4e46-8ef0-48f4fc51a3e2', '2023-08-05 00:00:00+00', 4646.4, '98915bfc-69b2-4228-b2d9-7e2be196db99');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('18b721e2-6f85-4786-9196-bb8a7e76c76b', '2023-08-13 00:00:00+00', 203280, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('e12c34cf-74c1-468d-9d9d-999dc5c98bab', '2023-08-13 00:00:00+00', 8470, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('4fde8569-8555-4311-9031-6883fa6c0f75', '2023-08-23 00:00:00+00', 94089.6, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('27ca5b5b-df72-4128-9967-5e6fff856a34', '2023-09-02 00:00:00+00', 282656, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('2408ef78-2560-49bf-bce7-ba67149e8be6', '2023-09-09 00:00:00+00', 35574, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('b1d5039e-b918-491f-b331-5000741cbc54', '2023-09-25 00:00:00+00', 312180, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('eab3c5df-012b-47f6-9a90-9937dbc928cd', '2023-10-04 00:00:00+00', 104544, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('bbb208b7-41fd-4740-97e0-9dccb01552e0', '2023-10-04 00:00:00+00', 259182, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('f06868c2-b5f2-48dd-99d8-588fdd9f97ff', '2023-10-14 00:00:00+00', 508780.8, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('7e1029f2-ea68-4b1b-8309-49aec57d3ff0', '2023-10-14 00:00:00+00', 462084.48, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('4840aaf6-de55-4427-9595-f69cae09d953', '2023-10-21 00:00:00+00', 880008.8, '0e8042c4-017d-4678-944a-98c4aaf330e8');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('5d63cfef-b234-42b0-8be0-1bd213ee28cd', '2023-10-31 00:00:00+00', 112907.52, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('a39afbd2-1c00-4023-b8c2-55c7615fcb5c', '2023-11-08 00:00:00+00', 56453.76, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('e250a96b-6347-4cb3-aac9-b5001126ad78', '2023-11-08 00:00:00+00', 10841.6, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('8705f4ce-c922-43b6-8918-96cf3c5965ff', '2023-11-16 00:00:00+00', 1082611.2, '0e8042c4-017d-4678-944a-98c4aaf330e8');
+INSERT INTO public."Cobranza" ("Id", "FechaLiquidacion", "Total", "ClienteId") VALUES ('b010bad7-c1e9-449b-a0e2-433ac3739afe', '2023-12-14 00:00:00+00', 515260.48, '4998080d-9415-43e3-a8cc-38b8205acbf4');
+
+
+--
+-- TOC entry 3423 (class 0 OID 50948)
+-- Dependencies: 211
+-- Data for Name: CondicionIva; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."CondicionIva" ("Id", "Nombre") VALUES ('5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', 'Responsable Inscripto');
+INSERT INTO public."CondicionIva" ("Id", "Nombre") VALUES ('152853b7-efbe-4e11-a642-05fb5f75484d', 'Exento de IVA');
+INSERT INTO public."CondicionIva" ("Id", "Nombre") VALUES ('0735d266-dfeb-4bef-951a-c8447bb70d13', 'Consumidor final');
+
+
+--
+-- TOC entry 3424 (class 0 OID 50953)
+-- Dependencies: 212
+-- Data for Name: DetalleCobranza; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('cbafd4a1-0de1-4303-8264-602ef8e0f1ef', 38297.13, 580.17, 38877.3, '00000000-0000-0000-0000-000000000000', '2023-02-01 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'de6841d4-06ca-4244-9a7c-314e859bbe62');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('e22969df-f711-47dd-9a6b-d3c5e741360e', 105129.39, 1592.61, 106722, '00000000-0000-0000-0000-000000000000', '2023-02-01 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'd24baeff-16b2-43c1-b22f-f9d41b8dfbc3');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('549509a3-6f12-4c21-b9eb-8380e4a9f56a', 20596.78, 312.02, 20908.8, '00000000-0000-0000-0000-000000000000', '2023-02-01 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '751a0dcf-ec1f-47d2-937a-a07d2289fcea');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('76b9a1b0-730c-4190-8911-16cf5b00c9bb', 58405.22, 884.78, 59290, '00000000-0000-0000-0000-000000000000', '2023-03-09 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'beb4735a-5e95-4ef6-ba91-02b6e66be479');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('665cf0f8-8630-49d4-bcb6-785f8249943b', 60741.42, 920.18, 61661.6, '00000000-0000-0000-0000-000000000000', '2023-03-18 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'cf71f4ee-18ae-4569-996b-b792b2f46b69');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('d31429eb-4daa-4ee0-8d14-3eada69342f1', 7723.79, 117.01, 7723.79, '00000000-0000-0000-0000-000000000000', '2023-04-01 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'f45e19a7-e246-4fe0-8eec-ba52de144989');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('cf8442b4-6cbd-4c81-be39-513b8cc7d089', 62820.17, 951.67, 63771.84, '00000000-0000-0000-0000-000000000000', '2023-04-01 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '83e0c075-8768-40fe-83a6-a3fd773ef40c');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('dd36e64a-33c4-43c0-8b70-6058b13568bf', 708384.63, 10731.37, 719116, '00000000-0000-0000-0000-000000000000', '2023-04-12 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '97c4ab79-5656-4459-ab51-870785631170');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('e5506d4f-9ca2-455c-b1d6-105e7b7ca94f', 80670.71, 1222.09, 81892.8, '00000000-0000-0000-0000-000000000000', '2023-05-11 00:00:00+00', '444ca65c-aa41-4e8d-b923-8644cec6e71b', '40a35624-e8b5-4dc5-8567-868596c2fc67');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('70d6c911-babb-4347-946b-5a35a8aec6f8', 46152.04, 699.16, 46851.2, '00000000-0000-0000-0000-000000000000', '2023-05-11 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '69d0314e-9238-49de-903e-d2ce9b6eb719');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('da7ec7fe-d4ac-45d5-98ec-cf5c6f78f3a8', 92985.87, 1408.65, 94394.52, '00000000-0000-0000-0000-000000000000', '2023-05-18 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '4ab89460-0b4d-4474-8f33-d08128a314d2');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('8f662c7a-4995-4f80-92d8-1f742e011907', 90826.07, 1375.93, 92202, '00000000-0000-0000-0000-000000000000', '2023-05-18 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '5cfe8240-aa1f-4462-9a37-30f9c5e928df');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('7ffb9d9f-51f3-45f1-aa40-1cedafafb07b', 36630.8, 554.92, 37185.72, '00000000-0000-0000-0000-000000000000', '2023-05-20 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'c61aad6c-456d-44ec-b377-535ed240b20f');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('f614dd6f-194e-4992-a33e-3300ff27c6e4', 27790.16, 420.99, 28211.15, '00000000-0000-0000-0000-000000000000', '2023-05-20 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'b91f770e-2086-4e7e-8eed-9b8fd82e201d');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('eb41619d-883c-4dd7-8ca7-42953a150c4c', 94230.26, 1427.5, 95657.76, '00000000-0000-0000-0000-000000000000', '2023-06-01 00:00:00+00', 'eb10df81-056e-4b7d-be27-47db4ebaad99', '5a0a91b1-3498-4140-ad62-e8cc4d199ae2');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('8696a5f3-1762-4dc3-ba0e-db288b04a74c', 141245.27, 2139.73, 143385, '00000000-0000-0000-0000-000000000000', '2023-06-01 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'cebfddf2-bd78-4de3-920f-55a8b584cfe3');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('c00c40de-a79a-45d3-ac85-b261df8578da', 133497.64, 2022.36, 135520, '00000000-0000-0000-0000-000000000000', '2023-06-18 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '3aeb1713-54a2-4ed4-b5c8-13ad0fd0bc3f');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('d8f065c8-5334-4701-8a12-aa3070bdd00d', 159911.1, 2422.5, 162333.6, '00000000-0000-0000-0000-000000000000', '2023-06-22 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'd5c9e0c0-6174-45d2-9601-d745b5d54f88');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('10f22a98-8180-4111-9d50-932db2e6648b', 80670.71, 1222.09, 81892.8, '00000000-0000-0000-0000-000000000000', '2023-06-29 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'd8391e64-226c-411f-b2f4-40097fb2fd2e');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('9204e88f-4165-4b84-8e0c-8f22c4570294', 40335.36, 611.04, 40946.4, '00000000-0000-0000-0000-000000000000', '2023-07-25 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'd30c9eda-7c68-44c3-bb94-2efce5e502b5');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('217a1acc-d539-49b9-b8c4-5831fcceef5e', 86411.11, 1309.05, 87720.16, '00000000-0000-0000-0000-000000000000', '2023-01-31 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'c0398b15-82f5-4d1e-a397-44bbf8c4643d');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('02770683-345d-49ef-a6a6-f4e28974832f', 466769.6, 6965.6, 466769.6, '00000000-0000-0000-0000-000000000000', '2023-08-03 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '37ffaf74-eb28-4c89-9c07-d0b701dc71c4');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('3b15f07e-ea88-405d-9008-e65bf65dea1c', 567379.2, 8467, 558912.2, '00000000-0000-0000-0000-000000000000', '2023-07-27 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '72b5cdc2-defd-472a-b6ec-466d600374fc');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('3277a978-7aff-437f-9525-01fe2472ea8e', 38905.03, 589.37, 39494.4, '00000000-0000-0000-0000-000000000000', '2023-08-26 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'fd9ce8aa-38ef-4995-ad26-ddecbaa261ed');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('4caa1fb7-d9e2-4708-8a9d-46891476668d', 239866.64, 3633.76, 243500.4, '00000000-0000-0000-0000-000000000000', '2023-08-08 00:00:00+00', '444ca65c-aa41-4e8d-b923-8644cec6e71b', '6d0ed8da-4336-4225-ae39-f52a0ce6a43f');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('0a1a714c-8ed9-470d-b636-005abff7c32a', 4577.06, 69.34, 4646.4, '00000000-0000-0000-0000-000000000000', '2023-08-08 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '3df51d77-d17a-4e46-8ef0-48f4fc51a3e2');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('640451e2-ed02-44ed-b090-58505cc414b5', 200246.45, 3033.55, 203280, '00000000-0000-0000-0000-000000000000', '2023-08-13 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '18b721e2-6f85-4786-9196-bb8a7e76c76b');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('94e41201-1f84-4469-bc63-54dd949eaf57', 8343.6, 126.4, 8470, '00000000-0000-0000-0000-000000000000', '2023-08-13 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'e12c34cf-74c1-468d-9d9d-999dc5c98bab');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('d57c2928-5f3c-48f6-b37c-c7c575bc8bc0', 92685.5, 1404.1, 94089.6, '00000000-0000-0000-0000-000000000000', '2023-08-23 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '4fde8569-8555-4311-9031-6883fa6c0f75');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('12021acc-7923-4455-b902-ee9a81926364', 278437.92, 4218.08, 282656, '00000000-0000-0000-0000-000000000000', '2023-09-02 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '27ca5b5b-df72-4128-9967-5e6fff856a34');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('2d63f900-2a40-44f2-b16e-42873b682027', 35043.13, 530.87, 35574, '00000000-0000-0000-0000-000000000000', '2023-09-21 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '2408ef78-2560-49bf-bce7-ba67149e8be6');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('a240fab0-f708-4432-819a-67ffdffc5dec', 307521.34, 4658.66, 307521.34, '00000000-0000-0000-0000-000000000000', '2023-09-25 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'b1d5039e-b918-491f-b331-5000741cbc54');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('198df674-d087-4106-b5b1-c39081737153', 102983.89, 1560.11, 104544, '00000000-0000-0000-0000-000000000000', '2023-10-04 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'eab3c5df-012b-47f6-9a90-9937dbc928cd');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('b2231384-cc7d-413c-b4ef-14129f7e9910', 255314.23, 3867.77, 259182, '00000000-0000-0000-0000-000000000000', '2023-10-04 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'bbb208b7-41fd-4740-97e0-9dccb01552e0');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('6083df14-fdf0-49bc-9f27-4ebdcf1fa172', 507188.26, 7592.54, 508780.8, '00000000-0000-0000-0000-000000000000', '2023-10-14 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'f06868c2-b5f2-48dd-99d8-588fdd9f97ff');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('03fdc138-fd04-4326-a2e3-11cc2554e538', 455188.79, 6895.69, 462084.48, '00000000-0000-0000-0000-000000000000', '2023-10-14 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '7e1029f2-ea68-4b1b-8309-49aec57d3ff0');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('beeffbb1-9dc1-4d88-ad65-ba0f7f19f437', 866876.43, 13132.37, 880008.8, '00000000-0000-0000-0000-000000000000', '2023-10-21 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '4840aaf6-de55-4427-9595-f69cae09d953');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('152c8a7f-6d9b-4e0d-b1a6-b37691d580b0', 111222.6, 1684.92, 112907.52, '00000000-0000-0000-0000-000000000000', '2023-10-31 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', '5d63cfef-b234-42b0-8be0-1bd213ee28cd');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('74656cf5-7487-4ad2-8475-574d67317d7f', 55611.3, 842.46, 56453.76, '00000000-0000-0000-0000-000000000000', '2023-11-08 00:00:00+00', 'f2b893ac-de32-4f4d-9818-5549bd16e41d', 'a39afbd2-1c00-4023-b8c2-55c7615fcb5c');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('4e733f24-6e76-4389-8247-0c655a22c843', 10679.81, 161.79, 10841.6, '00000000-0000-0000-0000-000000000000', '2023-11-08 00:00:00+00', '444ca65c-aa41-4e8d-b923-8644cec6e71b', 'e250a96b-6347-4cb3-aac9-b5001126ad78');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('7bc14acb-7ddf-4c17-a8c0-47fac4597f6f', 1066455.39, 16155.81, 1082611.2, '00000000-0000-0000-0000-000000000000', '2023-11-30 00:00:00+00', '444ca65c-aa41-4e8d-b923-8644cec6e71b', '8705f4ce-c922-43b6-8918-96cf3c5965ff');
+INSERT INTO public."DetalleCobranza" ("Id", "ImporteCobrado", "ImporteRetenido", "ImporteTotal", "FacturaId", "FechaPago", "TipoPagoId", "CobranzaId") VALUES ('0d6a2588-4ee7-4efa-878a-59606ad1ecf0', 515260.48, 0, 515260.48, '00000000-0000-0000-0000-000000000000', '2023-12-14 00:00:00+00', '444ca65c-aa41-4e8d-b923-8644cec6e71b', 'b010bad7-c1e9-449b-a0e2-433ac3739afe');
+
+
+--
+-- TOC entry 3425 (class 0 OID 50956)
+-- Dependencies: 213
+-- Data for Name: DetallePresupuesto; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+
+
+--
+-- TOC entry 3426 (class 0 OID 50959)
+-- Dependencies: 214
+-- Data for Name: DetalleProducto; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+
+
+--
+-- TOC entry 3427 (class 0 OID 50963)
+-- Dependencies: 215
+-- Data for Name: Factura; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('cbeed6d5-958a-4baf-a01d-a2a3f1c5ea15', '2023-03-13 06:00:00+00', '1', 759600, 159516, 1, 919116, '0e8042c4-017d-4678-944a-98c4aaf330e8', '000300000173', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('f4385718-189e-469d-afe9-c216538df65f', '2023-10-16 09:00:00+00', '1', 894720, 187891.2, 1, 1082611.2, '0e8042c4-017d-4678-944a-98c4aaf330e8', '000300000206', false, false, 298774.19999999995);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('20e0a4bd-1a80-4a37-ba52-e66649ccbc49', '2023-07-05 18:00:00+00', '1', 3840, 806.4, 1, 4646.4, '98915bfc-69b2-4228-b2d9-7e2be196db99', '000300000191', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('2c6c1a5a-5328-4514-9dd6-ff22e28dac9f', '2023-07-05 18:00:00+00', '1', 201240, 42260.4, 1, 243500.4, '98915bfc-69b2-4228-b2d9-7e2be196db99', '000300000190', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('21a9ba7d-a007-40f4-82b2-7ca6db28bcd0', '2023-08-29 12:00:00+00', '1', 214200, 44982, 1, 259182, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000199', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('24d4d3cb-5afe-4744-b969-a45e065d6cdf', '2023-09-08 12:00:00+00', '1', 381888, 80196.48, 1, 462084.48, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000201', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('1dcc44ed-6856-49ea-b460-af04fe9b5928', '2023-05-01 18:00:00+00', '1', 118500, 24885, 1, 143385, '0e8042c4-017d-4678-944a-98c4aaf330e8', '000300000181', false, true, 143385);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('1e7990bb-c14c-4ab6-9c54-bd099c45678a', '2023-04-20 00:00:00+00', '1', 23315, 4896.15, 1, 28211.15, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000179', false, true, 28211.15);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('23d72cfe-6d45-4079-b813-0da6e91dc4b3', '2023-06-09 00:00:00+00', '1', 33840, 7106.4, 1, 40946.4, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000185', false, true, 40946.4);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('3328a5c0-d262-4930-b447-a9d5ed0392ff', '2023-03-02 00:00:00+00', '1', 6480, 1360.8, 1, 7840.8, '0e8042c4-017d-4678-944a-98c4aaf330e8', '000300000171', false, true, 7840.8);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('4807efd6-faed-4a85-82fd-298f4bdd5088', '2023-01-02 00:00:00+00', '1', 72496, 15224.16, 1, 87720.16, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000168', false, true, 87720.16);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('35bc76a1-94cc-4d94-b57b-6fca6bdf978c', '2023-07-09 00:00:00+00', '1', 33840, 7106.4, 1, 40946.4, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000185', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('3e10c02d-16d8-459b-a2f4-64e1da482ef9', '2023-08-29 12:00:00+00', '1', 86400, 18144, 1, 104544, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000198', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('442f072f-d949-41e6-8f15-e4e32bff7b50', '2023-07-08 12:00:00+00', '1', 7000, 1470, 1, 8470, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000193', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('5346f970-d82a-4f2f-b753-affa3bbc43f7', '2022-12-27 12:00:00+00', '1', 17280, 3628, 1, 20908.8, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000167', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('53ceb32d-0926-41b3-91c6-8e2102b1cf1e', '2023-08-20 12:00:00+00', '1', 258000, 54180, 1, 312180, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000197', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('550d7e0a-f7c6-4fcf-85b8-0b0ed0f61f39', '2023-07-21 12:00:00+00', '1', 32640, 6854.4, 1, 39494.4, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000188', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('5b372935-7cae-4aba-804b-a3d776808124', '2024-02-02 09:00:00+00', '1', 46253, 9713.13, 1, 55966.13, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000211', false, false, 55966.13);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('5def3bbf-a38b-4bb8-b375-fd58c4f32c13', '2023-07-18 12:00:00+00', '1', 77760, 16329.6, 1, 94089.6, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000194', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('709f0c76-c74f-4615-a08e-d9ec62e508ba', '2023-05-23 12:00:00+00', '1', 67680, 14212.8, 1, 81892.8, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000184', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('73685a1f-c462-4ff7-85b1-349868789de9', '2023-09-08 12:00:00+00', '1', 420480, 88300.8, 1, 508780.8, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000200', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('77666726-c1a2-46cf-9aea-e28b9735f0b0', '2023-04-12 12:00:00+00', '1', 78012, 16382.52, 1, 94394.52, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000176', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('889cc060-1672-4a14-9fc0-7354416c0d2f', '2023-06-07 09:00:00+00', '1', 485760, 102009.6, 1, 587769.6, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000186', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('8aa044ba-c554-41d1-b153-20510933bed2', '2023-10-03 12:00:00+00', '1', 8960, 1881.6, 1, 10841.6, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000205', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('9098fc51-fd45-4cff-ae61-4171a14fbf4e', '2023-04-12 12:00:00+00', '1', 76200, 16002, 1, 92202, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000177', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('915b69cb-5bce-49a0-a16e-57983b9ef792', '2023-05-13 12:00:00+00', '1', 112000, 23520, 1, 135520, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000182', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('926dc4df-e339-45d3-9451-86982f7b18ea', '2023-07-08 12:00:00+00', '1', 168000, 35280, 1, 203280, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000192', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('e7eac6e0-5e78-44aa-a19e-ad721474b784', '2024-02-01 21:00:00+00', '1', 118342.8, 24851.99, 1, 143194.79, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000209', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('121d5d19-e68a-4280-afc0-b9300fe1aa1f', '2023-04-14 12:00:00+00', '1', 30732, 6453.72, 1, 37185.72, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000178', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('5158830c-e5c9-45c0-9b6c-a92377db7f19', '2023-09-20 09:00:00+00', '1', 727280, 152728.8, 1, 880008.8, '0e8042c4-017d-4678-944a-98c4aaf330e8', '000300000202', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('a7f00726-d9c6-4139-93dc-6e436dd33340', '2023-06-22 06:00:00+00', '1', 675520, 141859.2, 1, 817379.2, '0e8042c4-017d-4678-944a-98c4aaf330e8', '000300000187', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('1a9d02e2-18b8-4ac5-982c-279532d4f6fe', '2023-04-26 12:00:00+00', '1', 79056, 16601.76, 1, 95657.76, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000180', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('8574121d-a38f-4f84-b1c3-4be572b82b5e', '2023-12-29 15:00:00+00', '1', 78895.19, 16568, 1, 95463.19, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000207', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('a50eb149-7f68-44be-8581-0c6d9b3b472d', '2023-08-04 12:00:00+00', '1', 29400, 6174, 1, 35574, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000196', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('a6cef8e0-502a-43cd-b5a4-fb803c27dc50', '2024-02-02 00:00:00+00', '1', 173940, 36527.4, 1, 210467.4, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000210', false, false, 79245.18999999989);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('afd8d565-d505-4918-9c6f-84423ea18982', '2023-02-01 12:00:00+00', '1', 49000, 10290, 1, 59290, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000169', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('b212e6a7-15b9-4b69-a272-a798e48fda2c', '2023-05-16 12:00:00+00', '1', 134160, 28173.6, 1, 162333.6, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000183', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('bb198369-c5eb-4488-aeda-9203c106eed7', '2023-04-05 12:00:00+00', '1', 38720, 8131.2, 1, 46851.2, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000175', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('c373f170-f98b-4bd8-9a46-35169e848d3a', '2023-07-28 12:00:00+00', '1', 233600, 49056, 1, 282656, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000195', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('c4a9561f-0fec-4c8e-bacf-a0759af0b183', '2023-10-03 12:00:00+00', '1', 46656, 9797.76, 1, 56453.76, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000204', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('c4b00d59-9644-4bd4-981e-46abd585183d', '2022-12-27 12:00:00+00', '1', 32130, 6747.3, 1, 38877.3, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000165', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('d59ed33b-84ef-4e2e-a09b-63033a9ef63f', '2023-03-29 12:00:00+00', '1', 67680, 14212.8, 1, 81892.8, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000174', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('d7b4aa25-9fad-4fb4-85ef-3f82c5f3906b', '2022-12-27 12:00:00+00', '1', 88200, 18522, 1, 106722, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000166', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('dd92756b-7e3a-4451-b376-019986c9e29d', '2023-09-25 12:00:00+00', '1', 93312, 19595.52, 1, 112907.52, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000203', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('e4c85315-3cac-43cf-87e9-30d82a823d9b', '2023-12-29 18:00:00+00', '1', 115960, 24351.6, 1, 140311.6, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000208', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('f4e0aaef-cea5-436a-86ba-1dc4330512a4', '2023-02-24 12:00:00+00', '1', 52704, 11067.84, 1, 63771.84, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000172', false, false, 0);
+INSERT INTO public."Factura" ("Id", "Fecha", "TipoComprobante", "NetoGravado", "Iva", "TipoCambio", "Total", "ClienteId", "Numero", "Dolar", "Cancelada", "Saldo") VALUES ('f96654f0-54bb-471b-9e60-8351bdc29ab4', '2023-02-10 12:00:00+00', '1', 50960, 10701.6, 1, 61661.6, '4998080d-9415-43e3-a8cc-38b8205acbf4', '000300000170', false, false, 0);
+
+
+--
+-- TOC entry 3428 (class 0 OID 50971)
+-- Dependencies: 216
+-- Data for Name: Insumo; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('0c8557b5-1876-4e00-abdd-e3e9e482e442', 'Cadena Niquel bro 1mm x metro', 205, '2023-05-14 08:43:51.612+00', 'ee08ab1e-c95c-4416-bd39-7639294208b1', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('104cb627-9044-4fdd-88ae-5dcca1a6fce0', 'Cadena Niquel bronce 0.25mm x metro', 125, '2023-05-14 05:43:51.612+00', 'ee08ab1e-c95c-4416-bd39-7639294208b1', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('1f50f4e5-5d85-4683-91ac-18bc30e4913b', 'Amflex 320', 4500, '2023-03-14 02:54:49.983+00', '2a626fb4-09c6-4c41-af90-7228e8559b8d', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('447f0292-0567-46a5-b92c-450812899001', 'Cadena Niquel 0.5m x metro', 140, '2023-05-13 17:43:51.612+00', 'ee08ab1e-c95c-4416-bd39-7639294208b1', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('8d08791d-8b00-4ddc-a940-4e9426c01333', 'Amflex 450', 1455, '2023-06-06 00:00:00+00', '4107632a-7d06-4b68-8f38-683a356fbc6e', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('63710688-45ec-42d0-947a-2905cb948661', 'Amflex 240', 1555, '2023-06-06 00:00:00+00', '2a626fb4-09c6-4c41-af90-7228e8559b8d', false);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('aadddd11-494d-4cf8-84f9-9143b1fcbb77', 'Amflex 550', 2555, '2023-05-30 00:00:00+00', '2a626fb4-09c6-4c41-af90-7228e8559b8d', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('41d774c5-de70-40ce-84e1-0806214e806c', 'Amflex 550', 3333, '2023-05-31 00:00:00+00', '2a626fb4-09c6-4c41-af90-7228e8559b8d', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('e46feebe-0467-4ea3-9888-f6510e2a228a', 'Strass 16 mm cristal sivori', 1800, '2023-04-30 21:00:00+00', '4107632a-7d06-4b68-8f38-683a356fbc6e', false);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('f64aa44e-126a-4119-91ee-fa55e6ffd250', 'Strass 16 mm cristal sivori x 1440 unidades', 1800, '2023-06-01 00:00:00+00', 'ee08ab1e-c95c-4416-bd39-7639294208b1', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('1151b1c7-27c3-409e-bf8c-6d645bc43aa0', 'Strass 16 mm cristal sivori x unidad', 1.25, '2023-06-01 00:00:00+00', '4107632a-7d06-4b68-8f38-683a356fbc6e', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('d03a238d-8108-455e-b29d-23fb31556e5b', 'Amflex 250', 15200, '2023-05-30 21:00:00+00', '4107632a-7d06-4b68-8f38-683a356fbc6e', false);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('a7b94abf-1fc3-4a32-921a-a6b09ca09c14', 'Amflex 250', 4200, '2023-03-13 18:00:00+00', '2a626fb4-09c6-4c41-af90-7228e8559b8d', false);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('a897eea2-6da0-4580-bba2-2fbe58fc9984', 'Amflex 120', 1500, '2023-05-10 00:00:00+00', '2a626fb4-09c6-4c41-af90-7228e8559b8d', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03199e-8ff0-11ee-b9d1-0242ac120002', 'Goma Siliconada Brillo Minitorno', 991.52, '2023-07-31 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a031dea-8ff0-11ee-b9d1-0242ac120002', 'Paño de limpieza nacional CHICO color gris o naranja', 1793.31, '2023-11-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a031f16-8ff0-11ee-b9d1-0242ac120002', 'Paño de Brillo Blanco para Minitorno', 924.29, '2022-05-09 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03201a-8ff0-11ee-b9d1-0242ac120002', 'Disco de Esmeril y Goma negro Dedeco made in usa', 673.29, '2022-09-04 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a032128-8ff0-11ee-b9d1-0242ac120002', 'Disco de Corte Minitorno NUEVOS doble faz de carburo para metal. piedra y ceramica', 263.5, '2022-11-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a032240-8ff0-11ee-b9d1-0242ac120002', 'Adaptador para discos para tornos', 1669.97, '2022-10-18 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a032358-8ff0-11ee-b9d1-0242ac120002', 'Portaesmeril para torno', 2624.53, '2022-02-18 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a032452-8ff0-11ee-b9d1-0242ac120002', 'Paño de limpieza nacional GRANDE color gris o naranja', 2159.31, '2023-11-16 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a032556-8ff0-11ee-b9d1-0242ac120002', 'Cilindro de Esmeril y Goma Negro Densell', 416.02, '2022-01-28 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0326d2-8ff0-11ee-b9d1-0242ac120002', 'Disco de papel para torno. elija grano fino. medio. grueso. precio x unidad', 132.47, '2023-10-15 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0327ea-8ff0-11ee-b9d1-0242ac120002', 'Pasta de Pulido Tripoli', 2380.76, '2022-08-24 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0328ee-8ff0-11ee-b9d1-0242ac120002', 'Disco de Corte Minitorno para metal 22.3x060mm highs peed rojo', 175.65, '2023-07-13 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0329e8-8ff0-11ee-b9d1-0242ac120002', 'Pasta alto brillo Flexilium. la mejor pasta de brillo para oro-plata-acero inox', 2489, '2022-01-17 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a032aec-8ff0-11ee-b9d1-0242ac120002', 'Piedras verdes para tornos', 632.42, '2022-10-20 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a032cc2-8ff0-11ee-b9d1-0242ac120002', 'Pasta de brillo Blanca', 3354.56, '2022-12-24 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a032dd0-8ff0-11ee-b9d1-0242ac120002', 'Bandas esmeril para minitorno tela roja para metal', 231.47, '2023-01-30 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a032ede-8ff0-11ee-b9d1-0242ac120002', 'adaptador portagoma roscado', 1849.38, '2022-09-02 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a032fe2-8ff0-11ee-b9d1-0242ac120002', 'piedras Rosas para Torno Colgante', 421.59, '2023-01-26 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0330dc-8ff0-11ee-b9d1-0242ac120002', 'Pasta de Super Brillo para plata-alpaca-bronce. se usa a mano con franelas', 2.75, '2023-11-19 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0331ea-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de Algodon para Minitorno', 1633.76, '2022-08-05 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0332ee-8ff0-11ee-b9d1-0242ac120002', 'Limpia plata Nicolin', 2920.6, '2022-04-08 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0333f2-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de Cerda Negra centro de Plastico', 4002.1, '2023-10-09 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0335a0-8ff0-11ee-b9d1-0242ac120002', 'Dedal de cuero para pulir ( 2 Unidades )', 5050.53, '2023-05-22 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0336b8-8ff0-11ee-b9d1-0242ac120002', 'cepillo de fieltro para brillo miniflex', 4022.33, '2023-09-10 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0337bc-8ff0-11ee-b9d1-0242ac120002', 'Piedras Blancas para torno colgante', 3162.09, '2023-03-14 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0338ca-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de Bronce de mano sin costura nacional', 4228.35, '2023-01-11 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0339d8-8ff0-11ee-b9d1-0242ac120002', 'Portaesmeril para torno IMP.', 1686.48, '2023-06-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a033ae6-8ff0-11ee-b9d1-0242ac120002', 'Fresero capacidad 60 fresas de 2.32mm y 1.60mm', 6198.93, '2022-08-25 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a033c76-8ff0-11ee-b9d1-0242ac120002', 'punta de goma y esmeril pulir verde', 5435.76, '2023-02-14 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a033d98-8ff0-11ee-b9d1-0242ac120002', 'Limpia plata Platalim 180cc', 4850, '2023-05-15 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a033eb0-8ff0-11ee-b9d1-0242ac120002', 'Liquido para agujas. tambor', 5782.58, '2023-06-30 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a033fa0-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de lana suave 33022', 1109.54, '2023-11-13 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0340b8-8ff0-11ee-b9d1-0242ac120002', 'Cepillo esponja Grueso 33029', 1344.99, '2022-11-27 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a034220-8ff0-11ee-b9d1-0242ac120002', 'Cepillo esponja Mediano 33028', 896.61, '2023-06-03 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0343e2-8ff0-11ee-b9d1-0242ac120002', 'Fieltro para pulir chico', 454.53, '2022-05-31 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a034504-8ff0-11ee-b9d1-0242ac120002', 'Cepillo esponja Suave 33027', 404.02, '2023-09-29 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03468a-8ff0-11ee-b9d1-0242ac120002', 'Cepillo para limpiar limas de acero', 6457.23, '2022-07-08 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0347c0-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de cerda COPA para Minitorno', 903.67, '2022-11-08 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0348d8-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de Bronce BROCHA para Minitorno', 1353.79, '2023-12-18 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0349f0-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de Bronce COPA para Minitorno', 1727.14, '2022-12-01 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a034b12-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo importado', 4574.56, '2023-05-24 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a034cb6-8ff0-11ee-b9d1-0242ac120002', 'Pasta brillo grande para plata-alpaca-bronce-cobre-aceros', 11881.88, '2023-06-25 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a034dd8-8ff0-11ee-b9d1-0242ac120002', 'Mordaza para torno manual 0.80mm', 3151.51, '2022-06-03 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a034ef0-8ff0-11ee-b9d1-0242ac120002', 'Juego de 3 cepillos mini para limpieza', 2713.78, '2022-03-23 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a035008-8ff0-11ee-b9d1-0242ac120002', 'esmeril y goma extradelgado para torno dedeco', 834.44, '2022-09-21 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03510c-8ff0-11ee-b9d1-0242ac120002', 'Goma roja Cilindro de esmeril', 851.99, '2023-09-08 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a035210-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido Importado', 4201.15, '2023-10-04 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03531e-8ff0-11ee-b9d1-0242ac120002', 'cepillo cerda DISCO para minitorno', 1008.64, '2022-09-08 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0354d6-8ff0-11ee-b9d1-0242ac120002', 'Plata liquida para baños caseros. para alpaca.bronce.cobre y plata 75 ml', 6514.46, '2023-12-28 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03563e-8ff0-11ee-b9d1-0242ac120002', 'Cono de fieltro para pulir anillos por dentro', 7878.86, '2022-05-10 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a035756-8ff0-11ee-b9d1-0242ac120002', 'Disco de fieltro importado 25x3mm Keystone', 967.96, '2023-10-29 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0358a0-8ff0-11ee-b9d1-0242ac120002', 'Puntas de goma y esmeril chicas para torno Blanco Fino', 1833.94, '2023-06-20 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0359e0-8ff0-11ee-b9d1-0242ac120002', 'Puntas de goma y esmeril para torno Verde Redondeada', 2858.03, '2022-11-03 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a035aee-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de acero BROCHA para Minitorno', 1477.43, '2022-07-29 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a035bfc-8ff0-11ee-b9d1-0242ac120002', 'Pasta verde para pulir alpaca-acero-cromo', 6481.99, '2022-12-08 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a035d0a-8ff0-11ee-b9d1-0242ac120002', 'Paño cosido para pulir metales duros. hojas de cuchillo y aceros', 6778.86, '2022-04-10 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a035eea-8ff0-11ee-b9d1-0242ac120002', 'Cepillo para brillo cerda super suave', 1111.55, '2023-06-13 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a036002-8ff0-11ee-b9d1-0242ac120002', 'Puntas de goma silicona blanca de carburo de silicio para terminacion cilindrica en punta', 2428.36, '2022-01-19 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a036106-8ff0-11ee-b9d1-0242ac120002', 'Pasta de brillo Dialux', 17937.47, '2022-05-02 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03621e-8ff0-11ee-b9d1-0242ac120002', 'Juego de 3 cepillos de acero. bronce y cerda', 3293.77, '2023-04-06 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0364a8-8ff0-11ee-b9d1-0242ac120002', 'Agujas nacional para pulidora electromagnetica', 13048.01, '2022-08-26 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0365ca-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo sabana Nacional 5"x1.5"(12.7x3.8cm aprox)', 4937.38, '2022-10-16 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0366e2-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo sabana Nacional 4"x1"(10.1x2.5cm aprox)', 3434.65, '2022-01-07 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0367fa-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de acero COPA para Minitorno', 1820.45, '2023-11-19 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a036aca-8ff0-11ee-b9d1-0242ac120002', 'Pasta Rouge para super brillo de oro-bronce- La pasta mas fina', 9360.51, '2023-03-29 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a036be2-8ff0-11ee-b9d1-0242ac120002', 'Cepillo pára cajon', 3676.86, '2022-11-09 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a036cf0-8ff0-11ee-b9d1-0242ac120002', 'pulidor soporte para pulir cadenas', 4318.63, '2022-02-23 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a036df4-8ff0-11ee-b9d1-0242ac120002', 'Polvo para lavadora ultrasonido 1kg', 11941.56, '2022-04-21 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a036f0c-8ff0-11ee-b9d1-0242ac120002', 'Pasta Amarilla para pulir', 3820.91, '2023-09-16 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a037024-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de cerda circular nacional', 12077.41, '2022-10-23 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0371b4-8ff0-11ee-b9d1-0242ac120002', 'Detergente desengrasante de alhajas 100ml', 4707.52, '2023-02-01 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0372d6-8ff0-11ee-b9d1-0242ac120002', 'Cepillo circular de bronce 0.10', 9796.66, '2022-01-08 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0373e4-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo sabana Nacional 6"x1.5"(15.2x3.8cm aprox)', 6983.89, '2023-09-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0374f2-8ff0-11ee-b9d1-0242ac120002', 'Mandril Dremel 4486', 10688.52, '2023-04-06 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03760a-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de Cerda Negra GROBET Importado', 7762.39, '2023-09-09 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03772c-8ff0-11ee-b9d1-0242ac120002', 'Limpia plata Platalim 100cc', 2799.54, '2022-08-14 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03783a-8ff0-11ee-b9d1-0242ac120002', 'Disco diamante para minitorno para material plastico. acrilico .yeso. ceramica', 4519.96, '2022-04-23 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a037948-8ff0-11ee-b9d1-0242ac120002', 'Juego de mordazas para Dremel 4485 con tuerca', 8550.66, '2022-06-16 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a037b14-8ff0-11ee-b9d1-0242ac120002', 'Cepillo cerda muy suave Estrella', 1630.31, '2022-02-07 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a037c36-8ff0-11ee-b9d1-0242ac120002', 'Puntas de goma y esmeril para torno forma Verde', 2852.86, '2022-04-26 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a037d44-8ff0-11ee-b9d1-0242ac120002', 'Anteojo de proteccion incoloro.apto uso con casco y auriculares', 1880.51, '2022-07-10 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a037e52-8ff0-11ee-b9d1-0242ac120002', 'Adaptador dremel 402', 1989.65, '2023-12-09 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a037f74-8ff0-11ee-b9d1-0242ac120002', 'Aserrin vegetac 80 para secar piezas de joyeria. 1kg', 7731.36, '2023-01-21 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a038082-8ff0-11ee-b9d1-0242ac120002', 'Disco de corte Dremel 36 unidades. 24mm', 5057.18, '2022-09-11 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a038190-8ff0-11ee-b9d1-0242ac120002', 'Piedra circular para torno para metales duros', 1557.11, '2023-10-09 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03829e-8ff0-11ee-b9d1-0242ac120002', 'Anteojos de proteccion incoloro. Patilla de nylon ajustable', 1851.62, '2022-06-24 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a038442-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de Cerda Negra Ingleses denturax', 8474.83, '2022-03-19 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a038550-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo sabana Nacional 5"x1"(12.7x2.5cm aprox)', 4150.28, '2022-10-14 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03865e-8ff0-11ee-b9d1-0242ac120002', 'compuesto ceramico para rotopulidora. 1 kg', 11679.43, '2022-08-16 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03876c-8ff0-11ee-b9d1-0242ac120002', 'Paño Connoisseurs para limpiar alhajas de PLATA-27.9x35.5cm. Made in USA', 10885.05, '2022-12-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a038884-8ff0-11ee-b9d1-0242ac120002', 'Liquido reemplazante de Amoniaco-Solucion', 7767.96, '2023-12-29 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a038992-8ff0-11ee-b9d1-0242ac120002', 'Cepillo circular de 2" de acero 030mm', 3353.76, '2023-01-10 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a038a96-8ff0-11ee-b9d1-0242ac120002', 'Pasta Gris para alpaca', 9468.72, '2023-03-13 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a038ba4-8ff0-11ee-b9d1-0242ac120002', 'Paño alto brillo de Poplin 4x1.5"', 6098.53, '2022-09-23 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a038d48-8ff0-11ee-b9d1-0242ac120002', 'Anteojos de proteccion incoloro. Ventilacion directa lateral', 1504.47, '2022-08-01 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a038e60-8ff0-11ee-b9d1-0242ac120002', 'Pasta Rosada para pulido y brillo de acero inoxidable y metales duros', 12314.63, '2022-01-03 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a038f6e-8ff0-11ee-b9d1-0242ac120002', 'Paño alto brillo de Poplin 5x1.5"', 8108.17, '2023-11-04 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a039086-8ff0-11ee-b9d1-0242ac120002', 'Lavadora Ultrasonido 2.5 L', 151149.37, '2023-07-26 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0391a8-8ff0-11ee-b9d1-0242ac120002', 'Dedal de cuero para pulir por unidad', 3572.64, '2022-05-10 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0392c0-8ff0-11ee-b9d1-0242ac120002', 'Agujas Importadas Punta Redondeada para pulidora electromagnetica x 100gs', 26840.63, '2023-02-02 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0393ce-8ff0-11ee-b9d1-0242ac120002', 'Cepillo para matear de fibra Nacional', 16232, '2022-02-03 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03964e-8ff0-11ee-b9d1-0242ac120002', 'Polvo para lavadora ultrasonido 1/2kg', 6421.61, '2022-10-17 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a039770-8ff0-11ee-b9d1-0242ac120002', 'Paño Connoisseurs para limpiar alhajas de PLATA y ORO.12.7x15.2cm made in USA.', 6088.25, '2022-03-14 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a039892-8ff0-11ee-b9d1-0242ac120002', 'Puntas de goma y esmeril chicas para torno blanco almendra', 2219.17, '2023-08-22 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0399aa-8ff0-11ee-b9d1-0242ac120002', 'Anteojos de seguridad 409 policarbonato', 1153.05, '2023-07-18 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a039ab8-8ff0-11ee-b9d1-0242ac120002', 'compuesto plastico cono 10 para rotopulidora. 1kg', 10364.16, '2023-07-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a039bd0-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro circular 100x25mm excelente para pulir. pura lana', 21466.94, '2023-04-04 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a039cf2-8ff0-11ee-b9d1-0242ac120002', 'cono de fieltro para pulir anillos nacional chico', 12880.16, '2022-03-01 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a039df6-8ff0-11ee-b9d1-0242ac120002', 'Agujas Importadas Punta Plana para pulidora electromagnetica x 100gs', 17738.15, '2023-05-24 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03a1f2-8ff0-11ee-b9d1-0242ac120002', 'Banda de lija Dremel 432 13mm grano #120', 2757.51, '2022-04-01 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03a30a-8ff0-11ee-b9d1-0242ac120002', 'Fieltro para pulir pulseras', 11811.07, '2023-10-13 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03f4d6-8ff0-11ee-b9d1-0242ac120002', 'Cepillo cerda negra', 2171.05, '2022-08-22 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03a422-8ff0-11ee-b9d1-0242ac120002', 'Juego accesorios Dremel 729 para tallar y grabar', 22722.68, '2023-08-21 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03a530-8ff0-11ee-b9d1-0242ac120002', 'Piedras arkansas para torno colgante', 3566.09, '2022-05-07 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03a63e-8ff0-11ee-b9d1-0242ac120002', 'Paño cosido 8"x3 hojas', 9697.04, '2022-04-04 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03a74c-8ff0-11ee-b9d1-0242ac120002', 'Tambor mini rotativo de pulido-variador de velocidad sin bolillas', 296530.43, '2023-03-27 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03a85a-8ff0-11ee-b9d1-0242ac120002', 'Conos Dobles de Acero Inox para el Tambor', 59768.12, '2022-07-20 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03a968-8ff0-11ee-b9d1-0242ac120002', 'Combo Tambor Numero 1 + 1 Kg de bolilla 3mm', 339135.38, '2022-01-06 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03ade6-8ff0-11ee-b9d1-0242ac120002', 'Paño cosido de 8" por 2 hojas', 9234.96, '2022-04-19 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03af08-8ff0-11ee-b9d1-0242ac120002', 'Lavadora Ultrasonido 3 lts con calefaccion y desagote y timmer', 191547.48, '2023-05-01 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03b016-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido azul Nacional 4"x1"(10.1x2.5cm aprox)', 3005.43, '2022-04-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03b124-8ff0-11ee-b9d1-0242ac120002', 'Pasta para madera Terva especial', 6099.29, '2023-01-31 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03b246-8ff0-11ee-b9d1-0242ac120002', 'Banda de lija con soporte Dremel 407', 2571.23, '2022-08-28 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03b35e-8ff0-11ee-b9d1-0242ac120002', 'Banda de lija Dremel 431 6.4mm grano #60', 2384.86, '2023-01-02 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03b46c-8ff0-11ee-b9d1-0242ac120002', 'tambor mini rotativo para pulir.Mediano. velocidad variable sin bolillas', 535738.31, '2022-06-29 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03b58e-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro para pulir 62x20mm', 9543.51, '2022-03-15 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03b93a-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo importado GROBET USA 6X50', 10125.64, '2022-04-18 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03ba52-8ff0-11ee-b9d1-0242ac120002', 'Amflex GRANDE #400 (150x25mm)', 34396.98, '2023-01-23 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03bb60-8ff0-11ee-b9d1-0242ac120002', 'Dremel 420 discos de corte heavy duty.20 pzs', 5822.49, '2023-01-01 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03bc78-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de naylon de mano importado', 4599.42, '2023-12-24 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03bd90-8ff0-11ee-b9d1-0242ac120002', 'Paño alto brillo de Poplin 6x1.5"', 14926.95, '2022-11-24 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03be94-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro circular 75x25mm excelente para pulir. pura lana', 17268.15, '2023-11-02 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03c01a-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de Pita para pulido de acero-bronce-metales duros 6x1.50mm', 27357.22, '2023-02-01 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03c358-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido azul Nacional 6"x2"(15.2x5cm aprox)', 7021.49, '2022-10-09 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03c470-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido importado 4x40 GROBET USA', 6797.79, '2022-05-06 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03c57e-8ff0-11ee-b9d1-0242ac120002', 'Detergente desengrasante de alhajas 250ml', 9638.64, '2022-06-27 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03c696-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo sabana Nacional 8"x1.5"(20.3x3.8cm aprox)', 10590.21, '2023-12-21 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03c79a-8ff0-11ee-b9d1-0242ac120002', 'Amflex GRANDE #600 (150x25mm)', 36040.94, '2023-04-03 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03c8b2-8ff0-11ee-b9d1-0242ac120002', 'Juego de accesorios para torno 109pcs PROSKIT', 16548.76, '2022-07-31 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03c9c0-8ff0-11ee-b9d1-0242ac120002', 'Paño fibra/scotch bordo (11 x 15cm)', 1860.1, '2022-09-24 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03cbbe-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo sabana Nacional 7"x1.5"(17.7x3.8cm aprox)', 10304.15, '2022-05-09 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03cef2-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo sabana Nacional 6"x1"(15.2x2.5cm aprox)', 6010.74, '2023-05-27 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03d00a-8ff0-11ee-b9d1-0242ac120002', 'Amflex GRANDE #220 (150x25mm)', 28200.44, '2023-11-28 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03d10e-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro circular 38x15 mm. excelente para pulir. pura lana', 4571.17, '2023-12-19 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03d212-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro circular 62x15mm excelente para pulir. pura lana', 7464.28, '2022-04-21 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03d30c-8ff0-11ee-b9d1-0242ac120002', 'Cepillo pita circular 3 hileras x 60mm', 7985.07, '2023-04-10 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03d406-8ff0-11ee-b9d1-0242ac120002', 'Cilindros de Acero Inox de 2 mm x 6 mm Para el Tambor. venta por 1kg', 65745.01, '2023-08-11 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03d500-8ff0-11ee-b9d1-0242ac120002', 'Pasta Amarilla para Acero', 10713.2, '2022-10-02 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03d5fa-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido azul Nacional 8"x1.5"(20.3x3.8cm aprox)', 9016.19, '2022-09-26 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03d910-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido azul Nacional 7"x2"(17.7x5cm aprox)', 8572.47, '2022-04-24 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03da0a-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido azul Nacional 5"x1.5"(12.7x3.8cm aprox)', 4508.08, '2023-04-06 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03db04-8ff0-11ee-b9d1-0242ac120002', 'Pasta pulir piedras duras oxido de cromo . 60gs aprox', 9356.82, '2023-03-02 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03dbfe-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro para pulir 50x20mm', 6390.75, '2023-05-17 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03dcee-8ff0-11ee-b9d1-0242ac120002', 'Amflex GRANDE #320 (150x25mm)', 33511.6, '2023-11-23 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03ddde-8ff0-11ee-b9d1-0242ac120002', 'Amflex GRANDE #280 (150x25mm)', 32753.02, '2023-05-27 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03ded8-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro circular 38x10mm excelente para pulir. pura lana', 3934.66, '2023-12-13 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03e036-8ff0-11ee-b9d1-0242ac120002', 'Amflex grande de 150x50mm', 43324.04, '2023-07-10 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03e324-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de Pita para pulido de acero-bronce-metales duros4x1.50', 24246.33, '2023-10-08 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03e43c-8ff0-11ee-b9d1-0242ac120002', 'Tambor mini rotativo pulido grande con variados de velocidad .sin bolillas', 843009.39, '2022-09-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03e540-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido azul Nacional 6"x1.5"(15.2x3.8cm aprox)', 5581.38, '2022-01-13 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03e63a-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulidoazul Nacional 6"x1"(15.2x2.5cm aprox)', 4865.84, '2022-05-09 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03e73e-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido importado 6x60 GROBET USA', 13088.27, '2022-10-16 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03e82e-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido importado 4x50 GROBET USA', 9232.82, '2023-01-02 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03e932-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido importado 3x30 GROBET USA', 5052.69, '2022-02-11 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03ea22-8ff0-11ee-b9d1-0242ac120002', 'Plateador para cobre. bronce y alpaca. 50cm3', 5072.96, '2023-09-21 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03ec98-8ff0-11ee-b9d1-0242ac120002', 'Cepillo super brillo hilos de algodon puro. 8cm diametro. para cono pulidora', 16500, '2023-09-13 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03eda6-8ff0-11ee-b9d1-0242ac120002', 'Pasta oxido de cerio en polvo para brillo de piedras. 60gs aprox.', 3980, '2022-10-22 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03ee96-8ff0-11ee-b9d1-0242ac120002', 'Paño fibra/scotch marron (7.5 x 15cm)', 1484.33, '2022-08-18 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03ef9a-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de bronce circular GROBET 3" x 4hileras', 22139.12, '2022-04-02 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03f094-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de bronce circular GROBET 3" x 3hileras', 18449.21, '2023-09-17 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03f18e-8ff0-11ee-b9d1-0242ac120002', 'Adaptador Dremel EZ402', 4723.03, '2022-08-16 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03f27e-8ff0-11ee-b9d1-0242ac120002', 'Amflex GRANDE #150 (150x25mm)', 24798.88, '2022-03-01 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03f5da-8ff0-11ee-b9d1-0242ac120002', 'Juego de brocas perforadora para madera Dremel 631', 14306.56, '2023-11-09 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03f6d4-8ff0-11ee-b9d1-0242ac120002', 'Disco diamante Dremel 545', 10314.03, '2022-08-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03f7d8-8ff0-11ee-b9d1-0242ac120002', 'Dremel 670 Adaptador para sierra circular', 25918.11, '2023-12-23 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03f8d2-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de Pita para pulido de acero-bronce-metales duros3x1', 23331.41, '2022-12-04 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03f9d6-8ff0-11ee-b9d1-0242ac120002', 'Juego de accesorios para torno Black Decker. 42 piezas', 17713.8, '2023-10-16 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03fac6-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido Importado Super Duro', 8308.95, '2023-07-04 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a03fbc0-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de Pita para pulido de acero-bronce-metales duros 5x1.50', 27265.63, '2022-01-26 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a04028c-8ff0-11ee-b9d1-0242ac120002', 'Cono de fieltro para pulir anillos nacional grande', 16848.25, '2023-02-18 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0403e0-8ff0-11ee-b9d1-0242ac120002', 'Cepillo circular de 2" de bronce duro', 4666.72, '2023-05-13 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0404e4-8ff0-11ee-b9d1-0242ac120002', 'Cono de fieltro para pulir para minitorno', 1485, '2023-12-21 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0405d4-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido importado 4x60 GROBET USA', 10156.09, '2022-09-30 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0406ce-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido importado 5x50 GROBET USA', 11658.9, '2022-08-07 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0407be-8ff0-11ee-b9d1-0242ac120002', 'Bolillas de Acero Inox 304 Redonda 3mm', 74243.08, '2023-11-24 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0408b8-8ff0-11ee-b9d1-0242ac120002', 'Disco de papel para torno', 224.41, '2023-07-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0409b2-8ff0-11ee-b9d1-0242ac120002', 'Lavadora Ultrasonido 7.50 Lts con calefaccion. timmer', 497733.22, '2023-02-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a040ca0-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido azul Nacional 10"x1"(25x2.5cm aprox)', 12576.44, '2022-02-20 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a040da4-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido azul Nacional 8"x2"(20.3x5cm aprox)', 9946.37, '2023-08-25 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a040e9e-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido azul Nacional 7"x1.5"(17.7x3.8cm aprox)', 7727.98, '2023-09-27 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a040f98-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido importado rojo 5x40 GROBET USA', 10521.72, '2022-03-02 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a041092-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido importado violeta 5x50 GROBET USA', 10944.46, '2022-06-30 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0411a0-8ff0-11ee-b9d1-0242ac120002', 'Pulidora de agujas Burato con timmer y control de velocidad y marcha y contramarcha por comput. motor especial', 125000, '2022-03-10 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a041290-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro para pulir 50x15mm', 5095.55, '2022-05-31 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0413ee-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro para pulir 75x12mm', 9032.25, '2022-12-31 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a041b0a-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro circular 75x20mm', 14315.27, '2023-05-29 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a041c36-8ff0-11ee-b9d1-0242ac120002', 'Pasta compuesto para pulir piedras en polvo blanco.50grs aprox.', 4697.19, '2023-02-19 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a041d26-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de bronce circular GROBET 4" x 3hileras', 23984, '2022-07-27 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a041e20-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de bronce circular GROBET 4" x 4hileras', 25828.94, '2022-07-17 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a041f10-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo sabana Nacional 8"x2"(20.3x5cm aprox)', 11806.76, '2022-09-20 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a04200a-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo sabana Nacional 7"x2"(17.7x5cm aprox)', 11735.35, '2022-02-25 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a042104-8ff0-11ee-b9d1-0242ac120002', 'Amflex GRANDE #240 (150x25mm)', 30287.06, '2022-11-14 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a04246a-8ff0-11ee-b9d1-0242ac120002', 'Amflex GRANDE #180 (150x25mm)', 27821.1, '2023-07-19 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0425b4-8ff0-11ee-b9d1-0242ac120002', 'Disco de carburo para cortar/moldear Dremel 543', 9962.6, '2022-05-26 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a04273a-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro circular 150x15 mm. excelente para pulir. pura lana', 20194.04, '2023-08-25 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a042884-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro circular 180x25 mm. excelente para pulir. pura lana', 47447.46, '2023-11-10 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a04297e-8ff0-11ee-b9d1-0242ac120002', 'Rueda de fieltro circular 100x50 mm. excelente para pulir. pura lana', 30088.62, '2022-02-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a042a78-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de punta de cerda para pulidora.Italiano', 4924.12, '2022-12-19 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a042ba4-8ff0-11ee-b9d1-0242ac120002', 'Juego de 160 accesorios Dremel', 38547.88, '2022-07-14 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a042e56-8ff0-11ee-b9d1-0242ac120002', 'Disco de corte carburo Dremel 544', 13221.95, '2022-10-24 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a042f64-8ff0-11ee-b9d1-0242ac120002', 'Sierra circular Dremel 546', 8384.3, '2023-01-07 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a04305e-8ff0-11ee-b9d1-0242ac120002', 'Mesa de pulido con aspiracion. doble motor Importada', 205889.1, '2022-06-14 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a04314e-8ff0-11ee-b9d1-0242ac120002', 'Arenadora lapiz solo drilco', 128639.12, '2023-12-01 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a043248-8ff0-11ee-b9d1-0242ac120002', 'Arenadora 2 manos.D M. pico de widia. 350x340x320mm', 722487.74, '2022-10-10 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a04361c-8ff0-11ee-b9d1-0242ac120002', 'Arenadora 2 manos.Sabilex. pico de widia. 350x340x320mm', 369974.23, '2022-07-26 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a04372a-8ff0-11ee-b9d1-0242ac120002', 'Juego accesorios Dremel 728 de corte', 28520.56, '2023-05-14 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a043824-8ff0-11ee-b9d1-0242ac120002', 'Lavadora Ultrasonido 6 Lts con calefaccion. timmer', 383516.62, '2023-02-08 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a043914-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido verde/azul grafa para minitorno nacional', 1591.18, '2022-04-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a043a0e-8ff0-11ee-b9d1-0242ac120002', 'Disco de Esmeril y Goma negro Densell', 509.43, '2022-01-04 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a043b12-8ff0-11ee-b9d1-0242ac120002', 'Disco diamante suelto doble faz 50001 para minitorno para cortar siempre con agua vidrio. piedras', 4922.72, '2022-02-05 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a043d2e-8ff0-11ee-b9d1-0242ac120002', 'Bolillas de porcelana para tambor y rotofinsh por 1 kg', 16940.4, '2023-01-16 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a043e96-8ff0-11ee-b9d1-0242ac120002', 'Paño alto brillo de Poplin 4x1"', 3888.9, '2023-08-06 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a043f86-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido azul Nacional 5"x1"(12.7x2.5cm aprox)', 4007.19, '2023-07-11 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a044080-8ff0-11ee-b9d1-0242ac120002', 'Cepillo de Cerda duro', 2777.41, '2022-03-26 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a044170-8ff0-11ee-b9d1-0242ac120002', 'Bolillas de acero inox Redondas de 2.5 mm para el Tambor', 76997.95, '2023-08-27 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a044274-8ff0-11ee-b9d1-0242ac120002', 'Bolillas de Acero Inox. 304 Redonda 2mm', 76996.66, '2022-08-01 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a044364-8ff0-11ee-b9d1-0242ac120002', 'Juego accesorios Black y Decker para todo torno. 93 piezas', 32391.44, '2022-08-25 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a04468e-8ff0-11ee-b9d1-0242ac120002', 'Mix de Municiones Acero 316 para el Tambor', 61325.21, '2023-02-11 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a044792-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo sabana Nacional 4"x1.5"(10.1x3.8cm aprox)', 3864.18, '2022-12-16 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a04488c-8ff0-11ee-b9d1-0242ac120002', 'Mesa de pulido con aspiracion. dos bocas ALI', 613385.28, '2023-12-14 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a044986-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido azul Nacional 4"x1.5"(10.1x3.8cm aprox)', 4221.84, '2022-05-04 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a044a80-8ff0-11ee-b9d1-0242ac120002', 'Paño de pulido azul Nacional 3"x1"(7.6x2.5cm aprox)', 2633.35, '2023-10-01 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a044b7a-8ff0-11ee-b9d1-0242ac120002', 'Paño de brillo sabana Nacional 3"x1"(7.6x2.5cm aprox)', 3148.49, '2022-07-12 00:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('6657c517-d5fa-48af-a983-cc88698ffe3c', 'Esmeril grano 250', 1250, '2024-01-14 21:00:00+00', '2a626fb4-09c6-4c41-af90-7228e8559b8d', false);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('7a127656-97fa-4ea9-8127-9672c76b3392', 'Arandela Oro 0,5 ', 1200, '2024-01-29 00:00:00+00', 'ee08ab1e-c95c-4416-bd39-7639294208b1', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('1f406274-3b9b-4f6f-a89a-d6fe012a8680', 'Amflex 320', 345, '2024-02-06 00:00:00+00', '4107632a-7d06-4b68-8f38-683a356fbc6e', true);
+INSERT INTO public."Insumo" ("Id", "Descripcion", "Precio", "FechaCompra", "ProveedorId", "Activo") VALUES ('2a0369a8-8ff0-11ee-b9d1-0242ac120002', 'Adaptador de discos para tornos tornillo grande', 1897.23, '2023-02-25 21:00:00+00', '46f879e1-d8a5-41a3-9aee-e478641513b6', false);
+
+
+--
+-- TOC entry 3429 (class 0 OID 50977)
+-- Dependencies: 217
+-- Data for Name: Localidad; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."Localidad" ("Id", "Nombre", "ProvinciaId") VALUES ('79524781-8158-4bf3-80a0-1b95a5eb51cc', 'Zárate', '810c244b-7228-4748-af98-e814e382aa67');
+INSERT INTO public."Localidad" ("Id", "Nombre", "ProvinciaId") VALUES ('8ebdab4c-e0e3-4712-8c85-037dbed8ae3d', 'Campana', '810c244b-7228-4748-af98-e814e382aa67');
+INSERT INTO public."Localidad" ("Id", "Nombre", "ProvinciaId") VALUES ('ce1de755-a7bd-4557-814c-2b7cba3223a8', 'Escobar', '810c244b-7228-4748-af98-e814e382aa67');
+INSERT INTO public."Localidad" ("Id", "Nombre", "ProvinciaId") VALUES ('967c0f13-0923-45b1-9e65-c6630e499415', 'CABA', '5b0aa07c-dd2f-403f-90a1-67c1e2904ef9');
+INSERT INTO public."Localidad" ("Id", "Nombre", "ProvinciaId") VALUES ('263e37b6-b280-462a-afa8-2bb1500a3db2', 'Lomas de Zamora', '810c244b-7228-4748-af98-e814e382aa67');
+INSERT INTO public."Localidad" ("Id", "Nombre", "ProvinciaId") VALUES ('cb6ee0af-847d-4e7f-b2ba-57b6528dc49a', 'Lomas del Mirador', '810c244b-7228-4748-af98-e814e382aa67');
+INSERT INTO public."Localidad" ("Id", "Nombre", "ProvinciaId") VALUES ('e74a09e1-2746-45e2-acde-f6c50dea6129', 'Vicente López', '810c244b-7228-4748-af98-e814e382aa67');
+INSERT INTO public."Localidad" ("Id", "Nombre", "ProvinciaId") VALUES ('99c0c796-0330-41a5-a689-356eb7a75312', 'Córdoba', '2228cc5d-992c-4149-9e44-6ad3721be0da');
+INSERT INTO public."Localidad" ("Id", "Nombre", "ProvinciaId") VALUES ('72e17324-9a19-414f-ad97-35d97216d239', 'Río Ceballos', '2228cc5d-992c-4149-9e44-6ad3721be0da');
+
+
+--
+-- TOC entry 3430 (class 0 OID 50982)
+-- Dependencies: 218
+-- Data for Name: Presupuesto; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."Presupuesto" ("Id", "Numero", campania, "Total", "ClienteId", "Activo", "Aceptado", "Fecha") VALUES ('1f4e2958-54d2-4279-b622-f8715def740a', 1, 'Verano', 28600, '98915bfc-69b2-4228-b2d9-7e2be196db99', true, false, '-infinity');
+
+
+--
+-- TOC entry 3432 (class 0 OID 50991)
+-- Dependencies: 220
+-- Data for Name: Producto; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."Producto" ("Id", "nombreProducto", "costoProducto", utilidad, "costoTotal", "FechaCreacion", "banioProducto", "cantidadProductos", "PresupuestoId") VALUES ('d62cfb27-6c9f-4e2a-8dda-fbdd83fd4d4e', 'Aro Anana', 0, 0, 0, '2024-03-04 20:04:35.936728+00', 'Niquel', 100, '1f4e2958-54d2-4279-b622-f8715def740a');
+
+
+--
+-- TOC entry 3433 (class 0 OID 50999)
+-- Dependencies: 221
+-- Data for Name: Proveedor; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."Proveedor" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "CondicionIvaId", "LocalidadId", "Activo") VALUES ('ee08ab1e-c95c-4416-bd39-7639294208b1', 'Labanca SA', '30697993326', 'San Martín', '1350', '1604', '5555-6666', 'Martín Labanca', 'martin@labanaca.com.ar', 'Cadenas niquel simil oro', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', '263e37b6-b280-462a-afa8-2bb1500a3db2', true);
+INSERT INTO public."Proveedor" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "CondicionIvaId", "LocalidadId", "Activo") VALUES ('2a626fb4-09c6-4c41-af90-7228e8559b8d', 'Rubino Hnos SRL', '30646127684', 'Luis Terragno', '4241', '1605', '4762-0129', 'José', 'hnosrubino@gmail.com', 'Productos de pulido', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', 'e74a09e1-2746-45e2-acde-f6c50dea6129', true);
+INSERT INTO public."Proveedor" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "CondicionIvaId", "LocalidadId", "Activo") VALUES ('46f879e1-d8a5-41a3-9aee-e478641513b6', 'Wasser', '30697993327', 'Libertad', '125', '1085', '5555-5555', 'Armando', 'awasser@wasser.com', '', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', '967c0f13-0923-45b1-9e65-c6630e499415', true);
+INSERT INTO public."Proveedor" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "CondicionIvaId", "LocalidadId", "Activo") VALUES ('4107632a-7d06-4b68-8f38-683a356fbc6e', 'De Cusatis Flavio y De Cusatis Valerio SH', '30678298464', 'Paso', '2455', '1752', '4657-7151', 'Valerio', 'info@decusatis.com', 'Fabrica de cadenas', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', 'cb6ee0af-847d-4e7f-b2ba-57b6528dc49a', true);
+INSERT INTO public."Proveedor" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "CondicionIvaId", "LocalidadId", "Activo") VALUES ('7ca9536b-dfea-4049-aef8-5f0d141f4688', 'Arwas', '30697993327', 'Libertad', '215', '1080', '5555-5555', 'Dolina', 'dolina@arwas.com.ar', '', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', '967c0f13-0923-45b1-9e65-c6630e499415', true);
+INSERT INTO public."Proveedor" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "CondicionIvaId", "LocalidadId", "Activo") VALUES ('f57f505e-c6b5-4c08-9c86-91e6d07a4089', 'Neptuno', '27264360485', 'Uriburu', '323', '1084', '55555555', 'Jorge', 'jorge@neptuno.com', '', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', '967c0f13-0923-45b1-9e65-c6630e499415', true);
+INSERT INTO public."Proveedor" ("Id", "RazonSocial", "Cuit", "Calle", "Numero", "CodigoPostal", "Telefono", "NombreContacto", "Email", "Comentario", "CondicionIvaId", "LocalidadId", "Activo") VALUES ('3a35df3d-0b06-4df6-bd80-1a9d559e724e', 'Nuevo proveedor', '30697993325', 'Calle', '1234', '2700', '5555-5555', 'José', 'jose@nombreproveedor.com.ar', '', '5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3', '8ebdab4c-e0e3-4712-8c85-037dbed8ae3d', true);
+
+
+--
+-- TOC entry 3434 (class 0 OID 51005)
+-- Dependencies: 222
+-- Data for Name: Provincia; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."Provincia" ("Id", "Nombre") VALUES ('2228cc5d-992c-4149-9e44-6ad3721be0da', 'Córdoba');
+INSERT INTO public."Provincia" ("Id", "Nombre") VALUES ('5b0aa07c-dd2f-403f-90a1-67c1e2904ef9', 'CABA');
+INSERT INTO public."Provincia" ("Id", "Nombre") VALUES ('810c244b-7228-4748-af98-e814e382aa67', 'Buenos Aires');
+
+
+--
+-- TOC entry 3435 (class 0 OID 51010)
+-- Dependencies: 223
+-- Data for Name: TipoPago; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."TipoPago" ("Id", "Nombre") VALUES ('f2b893ac-de32-4f4d-9818-5549bd16e41d', 'Transferencia');
+INSERT INTO public."TipoPago" ("Id", "Nombre") VALUES ('444ca65c-aa41-4e8d-b923-8644cec6e71b', 'Echeq');
+INSERT INTO public."TipoPago" ("Id", "Nombre") VALUES ('eb10df81-056e-4b7d-be27-47db4ebaad99', 'Cheque');
+INSERT INTO public."TipoPago" ("Id", "Nombre") VALUES ('4f21243f-38bc-46fd-bf8a-4e724628f14a', 'Otro');
+
+
+--
+-- TOC entry 3436 (class 0 OID 51015)
+-- Dependencies: 224
+-- Data for Name: __EFMigrationsHistory; Type: TABLE DATA; Schema: public; Owner: claseProg3
+--
+
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230507215249_Migracion1', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230507215430_Migracion2', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230511174638_Migracion3', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230511175031_Migracion4', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230511214116_Migracion5', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230512141955_Migracion6', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230516013623_Migracion7', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230516015300_Migracion', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230516023520_Migracion8', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230516193238_Migracion9', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230516193420_Migracion10', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230516195209_Migracion11', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230517030027_Migracion12', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230520225915_Migracion13', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230520225934_Migracion14', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230521191132_Migracion15', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230521213700_Migracion16', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230601230028_Migracion17', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230601234214_Migracion18', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230603195035_Migracion19', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230605000011_Migracion20', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230605000218_Migracion21', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230605000502_Migracion22', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230605000710_Migracion23', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230610201153_Migracion24', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230611213501_Migracion25', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230612000856_Migracion26', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230613025234_Migracion27', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230613213924_Migracion28', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230619195938_Migracion29', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230619211935_Migracion30', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230620132841_Migracion31', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230621013629_Migracion32', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230621021559_Migracion33', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230621165911_Migracion34', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230623002529_Migracion35', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230627001227_Migracion36', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230627001807_Migracion37', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230627224658_Migracion38', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230627235505_Migracion39', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230628001957_Migracion40', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20230628004715_Migracion41', '7.0.5');
+INSERT INTO public."__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ('20240225132949_Migracion42', '7.0.5');
+
+
+--
+-- TOC entry 3443 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: Presupuesto_Numero_seq; Type: SEQUENCE SET; Schema: public; Owner: claseProg3
+--
+
+SELECT pg_catalog.setval('public."Presupuesto_Numero_seq"', 1, true);
+
+
+--
+-- TOC entry 3243 (class 2606 OID 51028)
+-- Name: Cliente Cliente_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Cliente"
+    ADD CONSTRAINT "Cliente_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3245 (class 2606 OID 51030)
+-- Name: Cobranza Cobranza_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Cobranza"
+    ADD CONSTRAINT "Cobranza_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3247 (class 2606 OID 51032)
+-- Name: CondicionIva CondicionIva_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."CondicionIva"
+    ADD CONSTRAINT "CondicionIva_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3249 (class 2606 OID 51034)
+-- Name: DetalleCobranza DetalleCobranza_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."DetalleCobranza"
+    ADD CONSTRAINT "DetalleCobranza_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3251 (class 2606 OID 51036)
+-- Name: DetallePresupuesto DetallePresupuesto_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."DetallePresupuesto"
+    ADD CONSTRAINT "DetallePresupuesto_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3253 (class 2606 OID 51038)
+-- Name: DetalleProducto DetalleProducto_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."DetalleProducto"
+    ADD CONSTRAINT "DetalleProducto_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3255 (class 2606 OID 51040)
+-- Name: Factura Factura_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Factura"
+    ADD CONSTRAINT "Factura_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3257 (class 2606 OID 51042)
+-- Name: Insumo Insumo_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Insumo"
+    ADD CONSTRAINT "Insumo_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3259 (class 2606 OID 51044)
+-- Name: Localidad Localidad_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Localidad"
+    ADD CONSTRAINT "Localidad_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3261 (class 2606 OID 51046)
+-- Name: Presupuesto Presupuesto_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Presupuesto"
+    ADD CONSTRAINT "Presupuesto_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3263 (class 2606 OID 51048)
+-- Name: Producto Producto_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Producto"
+    ADD CONSTRAINT "Producto_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3265 (class 2606 OID 58853)
+-- Name: Proveedor Proveedor_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Proveedor"
+    ADD CONSTRAINT "Proveedor_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3267 (class 2606 OID 51054)
+-- Name: Provincia Provincia_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Provincia"
+    ADD CONSTRAINT "Provincia_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3269 (class 2606 OID 51056)
+-- Name: TipoPago TipoPago_pkey; Type: CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."TipoPago"
+    ADD CONSTRAINT "TipoPago_pkey" PRIMARY KEY ("Id");
+
+
+--
+-- TOC entry 3271 (class 2606 OID 51062)
+-- Name: Cliente FK_Cliente_CondicionIva_CondicionIvaId; Type: FK CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Cliente"
+    ADD CONSTRAINT "FK_Cliente_CondicionIva_CondicionIvaId" FOREIGN KEY ("CondicionIvaId") REFERENCES public."CondicionIva"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3270 (class 2606 OID 51057)
+-- Name: Cliente FK_Cliente_Localidad_LocalidadId; Type: FK CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Cliente"
+    ADD CONSTRAINT "FK_Cliente_Localidad_LocalidadId" FOREIGN KEY ("LocalidadId") REFERENCES public."Localidad"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3272 (class 2606 OID 51067)
+-- Name: Cobranza FK_Cobranza_Cliente_ClienteId; Type: FK CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Cobranza"
+    ADD CONSTRAINT "FK_Cobranza_Cliente_ClienteId" FOREIGN KEY ("ClienteId") REFERENCES public."Cliente"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3273 (class 2606 OID 51072)
+-- Name: DetallePresupuesto FK_DetallePresupuesto_Producto_ProductoId; Type: FK CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."DetallePresupuesto"
+    ADD CONSTRAINT "FK_DetallePresupuesto_Producto_ProductoId" FOREIGN KEY ("ProductoId") REFERENCES public."Producto"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3274 (class 2606 OID 51077)
+-- Name: DetalleProducto FK_DetalleProducto_Producto_ProductoId; Type: FK CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."DetalleProducto"
+    ADD CONSTRAINT "FK_DetalleProducto_Producto_ProductoId" FOREIGN KEY ("ProductoId") REFERENCES public."Producto"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3275 (class 2606 OID 51082)
+-- Name: Factura FK_Factura_Cliente_ClienteId; Type: FK CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Factura"
+    ADD CONSTRAINT "FK_Factura_Cliente_ClienteId" FOREIGN KEY ("ClienteId") REFERENCES public."Cliente"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3276 (class 2606 OID 51087)
+-- Name: Localidad FK_Localidad_Provincia_ProvinciaId; Type: FK CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Localidad"
+    ADD CONSTRAINT "FK_Localidad_Provincia_ProvinciaId" FOREIGN KEY ("ProvinciaId") REFERENCES public."Provincia"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3277 (class 2606 OID 51092)
+-- Name: Presupuesto FK_Presupuesto_Cliente_ClienteId; Type: FK CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Presupuesto"
+    ADD CONSTRAINT "FK_Presupuesto_Cliente_ClienteId" FOREIGN KEY ("ClienteId") REFERENCES public."Cliente"("Id");
+
+
+--
+-- TOC entry 3278 (class 2606 OID 51097)
+-- Name: Proveedor FK_Proveedor_CondicionIva_CondicionIvaId; Type: FK CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Proveedor"
+    ADD CONSTRAINT "FK_Proveedor_CondicionIva_CondicionIvaId" FOREIGN KEY ("CondicionIvaId") REFERENCES public."CondicionIva"("Id") ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3279 (class 2606 OID 51102)
+-- Name: Proveedor FK_Proveedor_Localidad_LocalidadId; Type: FK CONSTRAINT; Schema: public; Owner: claseProg3
+--
+
+ALTER TABLE ONLY public."Proveedor"
+    ADD CONSTRAINT "FK_Proveedor_Localidad_LocalidadId" FOREIGN KEY ("LocalidadId") REFERENCES public."Localidad"("Id") ON DELETE CASCADE;
+
+
+-- Completed on 2024-03-05 19:21:08
+
+--
+-- PostgreSQL database dump complete
+--
+

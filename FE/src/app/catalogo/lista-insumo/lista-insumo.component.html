@@ -1,0 +1,142 @@
+<div class="container">
+    <h2>Listado de insumos</h2>
+    <input type="text" class="form-control col-md-12" name="filtroPorInsumo" placeholder="Buscar por nombre..."
+        [(ngModel)]="filtroPorInsumo">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Descripción</th>
+                <th scope="col">Proveedor</th>
+                <th class="moneda" scope="col">Precio</th>
+                <th class="moneda" scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let i of listaInsumos | filtroInsumo: filtroPorInsumo | paginate: { itemsPerPage: 8, currentPage: page }">
+                <td>{{ i.descripcion }}</td>
+                <td>{{ i.proveedor.razonSocial }}</td>
+                <td class="moneda">{{ i.precio | currency }}</td>
+                <td class="moneda">
+                    <div class="btn-group">
+
+                        <!--Boton modificar insumo-->
+                        <button data-bs-toggle="modal" data-bs-target="#editarModal" type="button"
+                            (click)="editarInsumo(i.id)" class="btn btn-outline-secondary">
+                            <i class="bi bi-pencil-square"></i>
+                            <span class="visually-hidden" (click)="editarInsumo(i.id)">Button</span>
+                        </button>
+                        <!--Boton modificar insumo-->
+
+                        <!--Modal modificar insumo-->
+                        <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog  modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="editarModalLabel">Editar Insumo</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close">
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="container">
+                                            <form [formGroup]="formEditarInsumo" class="row g-3">
+                                                <input type="hidden" formControlName="id" class="form-control"
+                                                        id="id">
+                                                <div class="col-md-12">
+                                                    <label for="Descripcion" class="form-label">Descripción</label>
+                                                    <input type="text" formControlName="descripcion" id="Descripcion" class="form-control"
+                                                        [class.invalido]="controlDescripcion.touched && controlDescripcion.hasError('required')">
+                                                    <div *ngIf="controlDescripcion.touched && controlDescripcion.hasError('required')"
+                                                        class="alert alert-danger" role="alert">
+                                                        ¡El campo es requerido!
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="precio" class="form-label">Precio</label>
+                                                    <input type="number" formControlName="precio" id="precio" class="form-control"
+                                                        [class.invalido]="controlPrecio.touched && controlPrecio.hasError('required')">
+                                                    <div *ngIf="controlPrecio.touched && controlPrecio.hasError('required')" class="alert alert-danger"
+                                                        role="alert">
+                                                        ¡El campo es requerido!
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="fechaCompra" class="form-label">Fecha de compra</label>
+                                                    <input type="date" formControlName="fechaCompra" id="fechaCompra" class="form-control"
+                                                        [class.invalido]="controlFechaCompra.touched && controlFechaCompra.hasError('required')">
+                                                    <div *ngIf="controlFechaCompra.touched && controlFechaCompra.hasError('required')"
+                                                        class="alert alert-danger" role="alert">
+                                                        ¡El campo es requerido!
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="ProveedorId" class="form-label">Proveedor</label>
+                                                    <select class="form-select" formControlName="ProveedorId" id="ProveedorId"
+                                                        [class.invalido]="controlProveedorId.touched && controlProveedorId.hasError('required')">
+                                                        <option selected disabled>seleccione...</option>
+                                                        <option *ngFor="let pro of listaProveedores" [value]="pro.id">
+                                                            {{ pro.razonSocial }}
+                                                        </option>
+                                                    </select>
+                                                    <div *ngIf="controlProveedorId.touched && controlProveedorId.hasError('required')"
+                                                        class="alert alert-danger" role="alert">
+                                                        ¡El campo es requerido!
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                    <button class="btn btn-success" data-bs-dismiss="modal" (click)="guardar()">Guardar</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cerrar</button>
+                                        <button type="button" class="btn btn-primary">Guardar</button>
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal modificaar insumo -->
+
+                        <!--Boton baja insumo-->
+                        <button type="button" class="btn btn-outline-secondary" (click)="eliminarInsumo(i.id)">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                        <!--Boton baja insumo-->
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <pagination-controls class="text-center" (pageChange)="page = $event" previousLabel="Anterior"
+        nextLabel="Siguiente"></pagination-controls>
+
+    <!--Boton (+) agregar insumo-->
+    <a data-bs-toggle="modal" data-bs-target="#altaModal">
+        <i class="bi bi-plus-circle-fill"></i>
+    </a>
+    <!--Boton (+) agregar insumo-->
+
+    <!-- Modal alta insumo -->
+    <div class="modal fade" id="altaModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="altaModalLabel">Alta insumo</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <app-alta-insumo></app-alta-insumo>
+                </div>
+                <!-- <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary">Save changes</button>
+                    </div> -->
+            </div>
+        </div>
+    </div>
+</div>

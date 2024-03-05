@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\app",
+    "\\src\\app\\presupuestos",
+    "\\src\\app\\presupuestos\\baja-presupuesto",
+    "\\src\\app\\presupuestos\\modificacion-presupuesto",
+    "\\src\\app\\productos",
+    "\\src\\app\\productos\\alta-producto",
+    "\\src\\app\\proveedores",
+    "\\src\\app\\proveedores\\lista-proveedor"
+  ],
+  "SelectedNode": "\\src\\app\\presupuestos\\baja-presupuesto\\baja-presupuesto.component.html",
+  "PreviewInSolutionExplorer": false
+}

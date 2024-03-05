@@ -1,0 +1,179 @@
+<div class="container">
+    <h2>Listado de proveedores</h2>
+    <input type="text" class="form-control col-md-12" name="filtroPorRazonSocial" placeholder="Buscar por proveedor..."
+        [(ngModel)]="filtroPorRazonSocial">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Razón Social</th>
+                <th scope="col">CUIT</th>
+                <th scope="col">Dirección</th>
+                <th scope="col">Teléfono</th>
+                <th scope="col">Localidad</th>
+                <th scope="col" class="moneda">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr
+                *ngFor="let p of listaProveedores | filtroRazonSocial: filtroPorRazonSocial |  paginate: { itemsPerPage: 8, currentPage: page }">
+                <td>{{p.razonSocial}}</td>
+                <td>{{p.cuit}}</td>
+                <td>{{p.calle + ' ' + p.numero}}</td>
+                <td>{{p.telefono}}</td>
+                <td>{{p.localidad.nombre}}</td>
+                <td class="moneda">
+                    <div class="btn-group">
+
+                        <!--Boton editar proveedor-->
+                        <button data-bs-toggle="modal" data-bs-target="#editarModal" type="button"
+                            (click)="EditarProveedor(p.id)" class="btn btn-outline-secondary">
+                            <i class="bi bi-pencil-square"></i>
+                            <span class="visually-hidden" (click)="EditarProveedor(p.id)">Button</span>
+                        </button>
+                        <!--Boton editar proveedor-->
+
+                        <!-- Modal editar proveedor -->
+                        <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog  modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="editarModalLabel">Editar proveedor</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="container">
+                                            <form  [formGroup]="formEditarProveedor" class="row g-3">
+                                                <input type="hidden" formControlName="id" class="form-control"
+                                                        id="id">
+                                                <div class="col-md-12">
+                                                    <label for="razonSocial" class="form-label">Razon Social</label>
+                                                    <input type="text" formControlName="razonSocial" id="razonSocial" class="form-control">
+                                                    
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="cuit" class="form-label">Cuit</label>
+                                                    <input type="text" formControlName="cuit" id="cuit" class="form-control">
+                                                    
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="calle" class="form-label">Calle</label>
+                                                    <input type="text" formControlName="calle" id="calle" class="form-control">
+                                
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label for="numero" class="form-label">Numero</label>
+                                                    <input type="text" formControlName="numero" id="numero" class="form-control">
+                                                    
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="codigoPostal" class="form-label">Codigo Postal</label>
+                                                    <input type="text" formControlName="codigoPostal" id="codigoPostal" class="form-control">
+                                                    
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="telefono" class="form-label">Telefono</label>
+                                                    <input type="text" formControlName="telefono" id="telefono" class="form-control">
+                                
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label for="nombreContacto" class="form-label">Nombre Contacto</label>
+                                                    <input type="text" formControlName="nombreContacto" id="nombreContacto" class="form-control">
+                                                    
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="email" class="form-label">Email</label>
+                                                    <input type="text" formControlName="email" id="email" class="form-control">
+                                                    
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="comentario" class="form-label">Comentario</label>
+                                                    <input type="text" formControlName="comentario" id="comentario" class="form-control">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="condicionIvaId" class="form-label">Condición de
+                                                        IVA</label>
+                                                    <select class="form-select" formControlName="condicionIvaId"
+                                                        id="condicionIvaId">
+                                                        <option default disabled>seleccione...</option>
+                                                        <option *ngFor="let cIva of listaCondicionIva" [value]="cIva.id">
+                                                            {{ cIva.nombre }}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="Provincia" class="form-label">Provincia</label>
+                                                    <select class="form-select" id="Provincia"
+                                                        (change)="obtenerLocalidad($any($event.target).value)">
+                                                        <option selected disabled>seleccione...</option>
+                                                        <option *ngFor="let pro of listaProvincias" value={{pro.id}}>
+                                                            {{pro.nombre}}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div>
+                                                        <label for="localidadId" class="form-label">Localidad</label>
+                                                        <select class="form-select" formControlName="localidadId"
+                                                            id="localidadId">
+                                                            <option default disabled>seleccione...</option>
+                                                            <option *ngFor="let loc of listaLocalidades"
+                                                                [selected]="loc === LocalidadId" [value]="loc.id">
+                                                                {{ loc.nombre }}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                    <button class="btn btn-success" data-bs-dismiss="modal" (click)="guardar()">Guardar</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal editar proveedor -->
+
+                        <!--Boton baja proveedor-->
+                        <button type="button" class="btn btn-outline-secondary" [id]="p.id"
+                            (click)="eliminarProveedor(p.id)">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                        <!--Boton baja proveedor-->
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <pagination-controls class="text-center" (pageChange)="page = $event" previousLabel="Anterior"
+        nextLabel="Siguiente"></pagination-controls>
+
+    <!--Boton (+) agregar proveedor-->
+    <a data-bs-toggle="modal" data-bs-target="#altaModal">
+        <i class="bi bi-plus-circle-fill"></i>
+    </a>
+    <!--Boton (+) agregar proveedor-->
+
+    <!-- Modal alta proveedor -->
+    <div class="modal fade" id="altaModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="altaModalLabel">Alta proveedor</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <app-alta-proveedor></app-alta-proveedor>
+                </div>
+                <!-- <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary">Save changes</button>
+                </div> -->
+            </div>
+        </div>
+    </div>
+</div>

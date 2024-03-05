@@ -1,0 +1,49 @@
+<div class="container">
+    <form [formGroup]="formAgregarInsumo" class="row g-3">
+        <div class="col-md-12">
+            <label for="Descripcion" class="form-label">Descripción</label>
+            <input type="text" formControlName="descripcion" id="Descripcion" class="form-control"
+                [class.invalido]="controlDescripcion.touched && controlDescripcion.hasError('required')">
+            <div *ngIf="controlDescripcion.touched && controlDescripcion.hasError('required')"
+                class="alert alert-danger" role="alert">
+                ¡El campo es requerido!
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="precio" class="form-label">Precio</label>
+            <input type="number" formControlName="precio" id="precio" class="form-control"
+                [class.invalido]="controlPrecio.touched && controlPrecio.hasError('required')">
+            <div *ngIf="controlPrecio.touched && controlPrecio.hasError('required')" class="alert alert-danger"
+                role="alert">
+                ¡El campo es requerido!
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="fechaCompra" class="form-label">Fecha de compra</label>
+            <input type="date" formControlName="fechaCompra" id="fechaCompra" class="form-control"
+                [class.invalido]="controlFechaCompra.touched && controlFechaCompra.hasError('required')">
+            <div *ngIf="controlFechaCompra.touched && controlFechaCompra.hasError('required')"
+                class="alert alert-danger" role="alert">
+                ¡El campo es requerido!
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="ProveedorId" class="form-label">Proveedor</label>
+            <select class="form-select" formControlName="ProveedorId" id="ProveedorId"
+                [class.invalido]="controlProveedorId.touched && controlProveedorId.hasError('required')">
+                <option selected disabled>seleccione...</option>
+                <option *ngFor="let pro of listaProveedores" [value]="pro.id">
+                    {{ pro.razonSocial }}
+                </option>
+            </select>
+            <div *ngIf="controlProveedorId.touched && controlProveedorId.hasError('required')"
+                class="alert alert-danger" role="alert">
+                ¡El campo es requerido!
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button class="btn btn-success" data-bs-dismiss="modal" (click)="guardar()">Guardar</button>
+        </div>
+    </form>
+</div>

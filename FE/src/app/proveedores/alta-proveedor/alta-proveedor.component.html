@@ -1,0 +1,112 @@
+<div class="container">
+    <form [formGroup]="formAgregarProveedor" (submit)="guardar()" class="row g-3">
+        <div class="col-md-12">
+            <label for="razonSocial" class="form-label">Razón social</label>
+            <input type="text" formControlName="razonSocial" id="razonSocial" class="form-control"
+                [class.invalido]="controlRazonSocial.touched && controlRazonSocial.hasError('required')">
+            <div *ngIf="controlRazonSocial.touched && controlRazonSocial.hasError('required')"
+                class="alert alert-danger" role="alert">
+                ¡El campo es requerido!
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label for="calle" class="form-label">Calle</label>
+            <input type="text" formControlName="calle" id="calle" class="form-control"
+                [class.invalido]="controlCalle.touched && controlCalle.hasError('required')">
+            <div *ngIf="controlCalle.touched && controlCalle.hasError('required')" class="alert alert-danger"
+                role="alert">
+                ¡El campo es requerido!
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label for="numero" class="form-label">Número</label>
+            <input type="text" formControlName="numero" id="numero" class="form-control"
+                [class.invalido]="controlNumero.touched && controlNumero.hasError('required')">
+            <div *ngIf="controlNumero.touched && controlNumero.hasError('required')" class="alert alert-danger"
+                role="alert">
+                ¡El campo es requerido!
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label for="Provincia" class="form-label">Provincia</label>
+            <select class="form-select" id="Provincia" (change)="obtenerLocalidad($any($event.target).value)">
+                <option selected disabled>seleccione...</option>
+                <option *ngFor="let pro of listaProvincias" value={{pro.id}}>
+                    {{pro.nombre}}
+                </option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <div *ngIf="listaLocalidades">
+                <label for="LocalidadId" class="form-label">Localidad</label>
+                <select class="form-select" formControlName="LocalidadId" id="LocalidadId"
+                    [class.invalido]="controlLocalidadId.touched && controlLocalidadId.hasError('required')">
+                    <option selected disabled>seleccione...</option>
+                    <option *ngFor="let loc of listaLocalidades" [value]="loc.id">
+                        {{ loc.nombre }}
+                    </option>
+                </select>
+                <div *ngIf="controlLocalidadId.touched && controlLocalidadId.hasError('required')"
+                    class="alert alert-danger" role="alert">
+                    ¡El campo es requerido!
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="codigoPostal" class="form-label">Código postal</label>
+            <input type="text" formControlName="codigoPostal" id="codigoPostal" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label for="telefono" class="form-label">Teléfono</label>
+            <input type="text" formControlName="telefono" id="telefono" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label for="nombreContacto" class="form-label">Nombre de contacto</label>
+            <input type="text" formControlName="nombreContacto" class="form-control" id="nombreContacto">
+        </div>
+        <div class="col-md-6">
+            <label for="email" class="form-label">Correo</label>
+            <div class="input-group">
+                <span class="input-group-text" id="email">@</span>
+                <input type="email" formControlName="email" class="form-control" id="email" aria-describedby="email">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="CondicionIva" class="form-label">Condición de IVA</label>
+            <select class="form-select" formControlName="CondicionIvaId" id="CondicionIva"
+            [class.invalido]="controlCondicionIvaId.touched && controlCondicionIvaId.hasError('required')">
+                <option selected disabled value="">seleccione...</option>
+                <option value="5fcb15bb-f9e0-4bcb-b3d6-ac403bb8b8b3">Responsable Insripto</option>
+                <option value="0735d266-dfeb-4bef-951a-c8447bb70d13">Consumidor final</option>
+                <option value="152853b7-efbe-4e11-a642-05fb5f75484d">Exento</option>
+            </select>
+            <div *ngIf="controlCondicionIvaId.touched && controlCondicionIvaId.hasError('required')"
+                    class="alert alert-danger" role="alert">
+                    ¡El campo es requerido!
+                </div>
+        </div>
+        <div class="col-md-6">
+            <label for="cuit" class="form-label">CUIT</label>
+            <input type="text" formControlName="cuit" class="form-control" id="cuit"
+            [class.invalido]="controlCuit.touched && controlCuit.hasError('required')">
+        <div *ngIf="controlCuit.touched && controlCuit.hasError('required')" class="alert alert-danger"
+            role="alert">
+            ¡El campo es requerido!
+        </div>
+        </div>
+        <div class="col-md-12">
+            <div class="mb-5">
+                <label for="comentario" class="form-label">Comentario</label>
+                <textarea class="form-control" formControlName="comentario" id="comentario" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                (click)="borrarFormulario()">Cerrar!</button>
+            <button class="btn btn-success">Guardar</button>
+        </div>
+    </form>
+</div>
