@@ -48,6 +48,8 @@ export class PrincipalComponent implements OnInit, OnDestroy {
   min: string;
   seg: number;
   sumaFactras: number;
+  sumaFactrasEsteAnio: number;
+  sumaFactrasAnioAnterior: number;
   dataSumaPresu: number[] = [];
   sumaPresupuestosAceptados: number;
   listaFiltrada: any;
@@ -79,6 +81,7 @@ export class PrincipalComponent implements OnInit, OnDestroy {
     this.contarFacturasPorCliente();
     this.ObtenerFacturasAnioAnterior();
     this.ObtenerFacturasAnioActual();
+    this.ObtenerFacturasEsteAnio();
 
     this.obtenerHora();
     setInterval(() => {
@@ -147,7 +150,7 @@ export class PrincipalComponent implements OnInit, OnDestroy {
       {
         name: 'Facturación año anterior ($)',
         type: 'line',
-        color: '#C0635C',
+        color: '#40856E',
         data: [87720.16, 184723.44, 1008849.60, 394502.35, 523131.40, 1446095.20, 917083.20, 711480, 1963781.60, 1149906.56, 0, 235774.79],
       }
     ],
@@ -174,7 +177,7 @@ export class PrincipalComponent implements OnInit, OnDestroy {
       {
         name: 'Facturación año anterior ($)',
         type: 'line',
-        color: '#40856E',
+        color: '#C0635C',
         data: [0, 409628.32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       }
     ],
@@ -273,11 +276,6 @@ export class PrincipalComponent implements OnInit, OnDestroy {
     // }
   }
 
-
-  ObtenerFacturasAnioAnterior() {
-
-  }
-
   obtenerHora() {
     const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Deciembre"];
     const fechaActual = new Date();
@@ -364,6 +362,35 @@ export class PrincipalComponent implements OnInit, OnDestroy {
     )
   }
 
+  ObtenerFacturasAnioAnterior() {
+    this.subscripction.add(
+      this.facturaApi.ObtenerAnterior().subscribe((data) => {
+        if (data.ok) {
+          this.listaFacturas = data.listaFacturas;
+          this.sumaFactrasAnioAnterior = this.listaFacturas.reduce((acumulador: number, actual: { total: number; }) => acumulador + actual.total, 0);
+          //facturación anual
+        }
+        else {
+          alert("Error al obtener el total de las facturas");
+        }
+      })
+    )
+  }
+
+  ObtenerFacturasEsteAnio() {
+    this.subscripction.add(
+      this.facturaApi.ObtenerActual().subscribe((data) => {
+        if (data.ok) {
+          this.listaFacturas = data.listaFacturas;
+          this.sumaFactrasEsteAnio = this.listaFacturas.reduce((acumulador: number, actual: { total: number; }) => acumulador + actual.total, 0);
+          //facturación anual
+        }
+        else {
+          alert("Error al obtener el total de las facturas");
+        }
+      })
+    )
+  }
   contarFacturasPorCliente() {
     this.listaFiltrada = {};
     for (const item of this.listaFacturas) {
@@ -414,6 +441,7 @@ export class PrincipalComponent implements OnInit, OnDestroy {
       this.presupuestoApi.ObtenerCantidadAceptados().subscribe((data) => {
         if (data != null) {
           this.sumaPresupuestosAceptados = data;
+          console.log(this.sumaPresupuestosAceptados);
           //cantidad de presupuestos generados
 
         }

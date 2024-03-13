@@ -11,10 +11,15 @@ import { InsumoProvider } from 'src/providers/insumoProvider';
 import { PresupuestoProvider } from 'src/providers/presupuestoProvider';
 import { ProductoProvider } from 'src/providers/productoProvider';
 import Swal from 'sweetalert2';
+import { DatePipe } from '@angular/common';
 import { Guid } from 'guid-typescript';
 import { DetalleProductoT } from 'src/interfaces/detalleProductoT';
 import { ProductoT } from 'src/interfaces/productoT';
 import { DetallePresupuestoT } from 'src/interfaces/detallePresupuestoT';
+import { PresupuestoCompleto } from 'src/interfaces/presupuesto-completo';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { DetalleProductoPdf } from 'src/interfaces/detalle-producto-pdf';
 
 @Component({
   selector: 'app-lista-presupuesto',
@@ -38,20 +43,28 @@ export class ListaPresupuestoComponent implements OnInit, OnDestroy {
   presupuesto = {} as Presupuesto;
   pros: Producto[];
   filtroPresupuesto: string = '';
+  presupuestoCompleto = {} as PresupuestoCompleto;
+  dia: any;
+  diaHora: any;
+  fecha: number;
+  listaDetalleProducto: any = [];
+  mostrarD: boolean = false;
 
 
   constructor(
     private formBuilder: FormBuilder,
     private insumoApi: InsumoProvider,
     private clienteApi: ClienteProvider,
-    private presupuestoApi: PresupuestoProvider) { }
+    public datepipe: DatePipe,
+    private presupuestoApi: PresupuestoProvider,
+    private productoApi: ProductoProvider) { }
 
   ngOnInit() {
     this.initForm();
     this.ObtenerClientes();
     this.ObtenerInsumos();
     this.ObtenerPresupuestos();
-
+    this.ObtenerFecha();
   }
 
   ngOnDestroy(): void {
@@ -70,6 +83,43 @@ export class ListaPresupuestoComponent implements OnInit, OnDestroy {
       productos: this.formBuilder.array([])
     });
   }
+
+  ObtenerFecha() {
+    this.fecha = Date.now();
+    this.dia = this.datepipe.transform(this.fecha, 'dd/MM/yyyy');
+    this.diaHora = this.datepipe.transform(this.fecha, 'yyyy-MM-dd-hhmmss');
+  }
+
+
+  ObtenerPreupuestoPorId(id: any) {
+    this.subscription.add(
+      this.presupuestoApi.ObtenerPresupuestosPorId(id).subscribe((data) => {
+        if (data) {
+          this.presupuestoCompleto = data;
+          console.log(this.presupuestoCompleto);
+        } else {
+          alert(data);
+        }
+      }))
+  }
+
+  AlternarDetalle() {
+    this.mostrarD = !this.mostrarD;;
+  }
+
+  ObtenerDetalleProductoPorId(id: any) {
+    this.subscription.add(
+      this.productoApi.ObtenerDetallePorId(id).subscribe((data) => {
+        if (data) {
+          this.listaDetalleProducto = data.listaDetalleProducto;
+          this.AlternarDetalle();
+          console.log(this.listaDetalleProducto);
+        } else {
+          alert(data);
+        }
+      }))
+  }
+
   productos(): FormArray {
     return this.productoForm.get('productos') as FormArray;
   }
@@ -135,12 +185,12 @@ export class ListaPresupuestoComponent implements OnInit, OnDestroy {
           this.subscription.add(
             this.presupuestoApi.Crear(this.presupuesto).subscribe({
               next: (res) => {
-                console.log(res)
+                console.log(res);
                 Swal.fire({
                   title: 'Presupuesto ingresado correctamente',
                   icon: 'success',
                   confirmButtonText: "Ok",
-                  
+
                 });
                 this.ObtenerPresupuestos();
               },
@@ -168,7 +218,6 @@ export class ListaPresupuestoComponent implements OnInit, OnDestroy {
     this.mostrar = true;
   }
 
-  VerPresupuesto(Id: any) { }
 
   limpiarFormularios() {
     this.formAgregarPresupuesto.reset();
@@ -257,6 +306,26 @@ export class ListaPresupuestoComponent implements OnInit, OnDestroy {
       }
     })
   }
+
+  pdf() {
+    var data = document.getElementById('presupuesto');
+    if (data !== null) {
+      html2canvas(data).then(canvas => {
+        // Few necessary setting options  
+        let imgWidth = 208;
+        let imgHeight = canvas.height * imgWidth / canvas.width;
+        const contentDataURL = canvas.toDataURL('image/png')
+        let pdf = new jsPDF('p', 'mm', 'a4'); // A4 size page of PDF  
+        let position = 0;
+        pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight)
+        pdf.save('Presupuesto_' + this.presupuestoCompleto.numero + '_' + this.diaHora + '.pdf'); // Nombre de la salida PDF
+
+      });
+    }
+  }
+
+
+
 
   get controlCompania(): FormControl {
     return this.formAgregarPresupuesto.controls['campania'] as FormControl;

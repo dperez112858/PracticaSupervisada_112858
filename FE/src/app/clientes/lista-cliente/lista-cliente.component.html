@@ -10,19 +10,19 @@
                 <th scope="col">Dirección</th>
                 <th scope="col">Teléfono</th>
                 <th scope="col">Localidad</th>
-                <th scope="col">Saldo</th>
+                <!-- <th scope="col">Saldo</th> -->
                 <th class="moneda" scope="col">Acciones</th>
             </tr>
         </thead>
         <tbody>
             <tr
-                *ngFor="let c of listaClientes | filtroRazonSocial: filtroPorRazonSocial | paginate: { itemsPerPage: 8, currentPage: page }">
+                *ngFor="let c of listaClientes | filtroRazonSocial: filtroPorRazonSocial | paginate: { itemsPerPage: 6, currentPage: page }">
                 <td>{{c.razonSocial}}</td>
                 <td>{{c.cuit}}</td>
                 <td>{{c.calle + ' ' + c.numero}}</td>
                 <td>{{c.telefono}}</td>
                 <td>{{c.localidad.nombre}}</td>
-                <td>{{c.saldo}}</td>
+                <!-- <td>{{c.saldo}}</td> -->
                 <td class="moneda">
                     <div class="btn-group">
 

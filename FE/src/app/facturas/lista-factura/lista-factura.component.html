@@ -17,7 +17,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let f of listaFacturas | filtroCliente: filtroPorCliente | paginate: { itemsPerPage: 8, currentPage: page }">
+            <tr *ngFor="let f of listaFacturas | filtroCliente: filtroPorCliente | paginate: { itemsPerPage: 6, currentPage: page }">
                 <td>{{ f.numero }}</td>
                 <td>{{ f.fecha | date: 'dd/MM/yyyy' }}</td>
                 <td *ngIf="f.tipoComprobante == 1">Factura A</td>

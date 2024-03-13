@@ -198,13 +198,13 @@ export class ReportesComponent implements OnInit {
 
   pdf() {
     if (this.mPedidos) {
-      var data = document.getElementById('presupuestosrep');
-    }
-    else if (this.mCobranzas) {
+      var data = document.getElementById('presupuestos');
+    } else if (this.mCobranzas) {
+      var data = document.getElementById('cobranzas');
+    } else if (this.mFacturacion) {
       var data = document.getElementById('facturacion');
-    }
-    else {
-      var data = document.getElementById('facturacion');
+    } else {
+      var data = document.getElementById('cuentaCorriente');
     }
     if (data !== null) {
       html2canvas(data).then(canvas => {

@@ -6,6 +6,7 @@ import { Producto } from "src/interfaces/producto";
 import { PresupuestoU } from "src/interfaces/presupuestoU";
 import { Presupuesto } from "src/interfaces/presupuesto";
 import { IntervaloPresupuesto } from "src/interfaces/intervaloPresupuesto";
+import { PresupuestoCompleto } from "src/interfaces/presupuesto-completo";
 
 @Injectable()
 export class PresupuestoProvider {
@@ -57,4 +58,8 @@ export class PresupuestoProvider {
         const body = JSON.stringify(intervaloPresupuesto);
         return this.http.post(url, body, { 'headers': headers });
     }    
+
+    ObtenerPresupuestosPorId(id: string): Observable<PresupuestoCompleto> {
+        return this.http.get<PresupuestoCompleto>(this.urlApi + 'api/Presupuesto/ObtenerPdf?id=' + id);
+    }
 }

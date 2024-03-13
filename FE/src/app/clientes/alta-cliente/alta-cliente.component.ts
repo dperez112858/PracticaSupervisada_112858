@@ -37,7 +37,6 @@ export class AltaClienteComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder) {
       
       this.formAgregarCliente = this.formBuilder.group({
-        id:[''],
         razonSocial: ['', Validators.required],
         cuit: ['', Validators.required],
         calle: ['', Validators.required],

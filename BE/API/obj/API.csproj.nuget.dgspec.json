@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\Mendieta\\Documents\\GitHub\\20240226_PS_backend\\API\\API.csproj": {}
+    "c:\\Users\\Mendieta\\Documents\\GitHub\\PracticaSupervisada_112858\\BE\\API\\API.csproj": {}
   },
   "projects": {
-    "c:\\Users\\Mendieta\\Documents\\GitHub\\20240226_PS_backend\\API\\API.csproj": {
+    "c:\\Users\\Mendieta\\Documents\\GitHub\\PracticaSupervisada_112858\\BE\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\Mendieta\\Documents\\GitHub\\20240226_PS_backend\\API\\API.csproj",
+        "projectUniqueName": "c:\\Users\\Mendieta\\Documents\\GitHub\\PracticaSupervisada_112858\\BE\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "c:\\Users\\Mendieta\\Documents\\GitHub\\20240226_PS_backend\\API\\API.csproj",
+        "projectPath": "c:\\Users\\Mendieta\\Documents\\GitHub\\PracticaSupervisada_112858\\BE\\API\\API.csproj",
         "packagesPath": "C:\\Users\\Mendieta\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\Mendieta\\Documents\\GitHub\\20240226_PS_backend\\API\\obj\\",
+        "outputPath": "c:\\Users\\Mendieta\\Documents\\GitHub\\PracticaSupervisada_112858\\BE\\API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Mendieta\\AppData\\Roaming\\NuGet\\NuGet.Config",

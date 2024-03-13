@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "96V0f4VBRK8lO3c31C/jua5ockyBMiTD5zFsk0c8kkSxatkQzNC9lVzKe0Pi2u0aetikojq0Bi7CGT6XCQaNhw==",
+  "dgSpecHash": "SY3dLwIMR6h7c2sukedrSxEw8KZFH6BMGyKEYZnz8i8mp276uPVSAX1BzwH+SV5QY+I4fPCqT3fGPbkPYYwSBg==",
   "success": true,
-  "projectFilePath": "c:\\Users\\Mendieta\\Documents\\GitHub\\20240226_PS_backend\\API\\API.csproj",
+  "projectFilePath": "c:\\Users\\Mendieta\\Documents\\GitHub\\PracticaSupervisada_112858\\BE\\API\\API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Mendieta\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Mendieta\\.nuget\\packages\\microsoft.aspnetcore.openapi\\7.0.5\\microsoft.aspnetcore.openapi.7.0.5.nupkg.sha512",

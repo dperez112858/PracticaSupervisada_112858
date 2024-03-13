@@ -12,7 +12,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let p of listaCobranzas | paginate: { itemsPerPage: 8, currentPage: page }">
+            <tr *ngFor="let p of listaCobranzas | paginate: { itemsPerPage: 6, currentPage: page }">
                 <td>{{ p.fechaLiquidacion | formatoFecha }}</td>
                 <td>{{ p.cliente.razonSocial }}</td>
                 <td class="moneda">{{ p.total | currency }}</td>

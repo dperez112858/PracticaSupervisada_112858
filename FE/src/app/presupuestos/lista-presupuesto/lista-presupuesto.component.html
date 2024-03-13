@@ -1,7 +1,7 @@
 <div class="container">
     <h2>Listado de presupuestos</h2>
     <input type="text" class="form-control col-md-12" name="filtroPresupuesto" placeholder="Buscar por campania..."
-    [(ngModel)]="filtroPresupuesto">
+        [(ngModel)]="filtroPresupuesto">
     <table class="table">
         <thead>
             <tr>
@@ -13,7 +13,8 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let p of listaPresupuestos | filtroPresupuesto: filtroPresupuesto | paginate: { itemsPerPage: 8, currentPage: page }">
+            <tr
+                *ngFor="let p of listaPresupuestos | filtroPresupuesto: filtroPresupuesto | paginate: { itemsPerPage: 6, currentPage: page }">
                 <td>{{ p.numero }}</td>
                 <td>{{ p.cliente.razonSocial }}</td>
                 <td>{{ p.campania }}</td>
@@ -22,9 +23,9 @@
                     <div class="btn-group">
                         <!--Boton ver presupuesto-->
                         <button data-bs-toggle="modal" data-bs-target="#verModal" type="button"
-                            class="btn btn-outline-secondary">
+                            (click)="ObtenerPreupuestoPorId(p.id)" class="btn btn-outline-secondary">
                             <i class="bi bi-printer"></i>
-                            <span class="visually-hidden" (click)="VerPresupuesto(p.id)">Button</span>
+                            <span class="visually-hidden" (click)="ObtenerPreupuestoPorId(p.id)"></span>
                         </button>
                         <!--Boton ver presupuesto-->
 
@@ -34,13 +35,139 @@
                             <div class="modal-dialog modal-xl">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="verModalLabel">Editar presupuesto</h1>
+                                        <h1 class="modal-title fs-5" id="verModalLabel">Presupuesto</h1>
                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <app-entregable [id]="p.Id">
-                                        </app-entregable>
+
+                                        <div class="container-fulid">
+                                            <div class="container" id="presupuesto">
+                                                <div class="mx-5">
+                                                    <div class="row pt-5">
+                                                        <div class="col-md-6 border">
+                                                            <h4 class="texto-l">SANDRA MARIEL GIGANTE</h4>
+                                                            <ul class="list-unstyled texto-l">
+                                                                <li>Sandra Mariel Gigante</li>
+                                                                <li>Vuelta de Obligado 3316 3ro A, CABA</li>
+                                                                <li>Responsable Inscripto</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="col-md-6 border">
+                                                            <h4>PRESUPUESTO Nro: {{ presupuestoCompleto.numero }}</h4>
+                                                            <ul class="list-unstyled">
+                                                                <li>Fecha de emisión: {{ presupuestoCompleto.fecha |
+                                                                    formatoFecha }}</li>
+                                                                <li>CUIT: 27-26436048-5</li>
+                                                                <li>Ingresos Brutos: 001-12548558</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row border">
+                                                        <div class="col-md-6 texto-l">
+                                                            <ul class="list-unstyled">
+                                                                <li>Apellido y Nombre/Razón social: {{
+                                                                    presupuestoCompleto.cliente?.razonSocial }}</li>
+
+                                                                <li>Condición de pago: 30 días</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="col-md-6 texto-l">
+                                                            <ul class="list-unstyled">
+                                                                <li>CUIT: {{ presupuestoCompleto.cliente?.cuit }}</li>
+
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row border">
+                                                        <table class="table">
+                                                            <thead class="table-light">
+                                                                <tr>
+                                                                    <th scope="col">Producto</th>
+                                                                    <th scope="col">Cantidad</th>
+                                                                    <th scope="col">Precio Unitario</th>
+                                                                    <th scope="col">Subtotal</th>
+                                                                    <th scope="col"></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr *ngFor="let p of presupuestoCompleto.items">
+                                                                    <td>{{ p.producto }}</td>
+                                                                    <td>{{ p.cantidad }}</td>
+                                                                    <td>{{ p.total/p.cantidad | currency }}</td>
+                                                                    <td>{{ p.total | currency }}</td>
+                                                                    <td>
+                                                                        <a *ngIf="mostrarD" href="javascript:void(0)"
+                                                                            (click)="AlternarDetalle()">
+                                                                            <i class="bi bi-list"></i>
+                                                                        </a>
+                                                                        <a *ngIf="!mostrarD" href="javascript:void(0)"
+                                                                            (click)="ObtenerDetalleProductoPorId(p.id)"><i
+                                                                                class="bi bi-list"></i>
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr *ngIf="mostrarD">
+                                                                    <td colspan="5">
+                                                                        <!-- Aquí va tu tabla hija -->
+                                                                        <table class="table">
+                                                                            <thead class="table-light">
+                                                                                <tr>
+                                                                                    <th>Cantidad</th>
+                                                                                    <th>Nombre</th>
+                                                                                    <th>Precio</th>
+                                                                                    <th>Total</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr
+                                                                                    *ngFor="let d of listaDetalleProducto">
+                                                                                    <td>{{ d.cantidad }}</td>
+                                                                                    <td>{{ d.insumo.descripcion }}</td>
+                                                                                    <td>{{ d.precioInsumo |currency }}
+                                                                                    </td>
+                                                                                    <td>{{ d.cantidad*d.precioInsumo
+                                                                                        |currency }}</td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+
+
+                                                    <div class="row border">
+                                                        <div class="col-md-12 border">
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <p class="text-end">Subtotal: {{ presupuestoCompleto.total
+                                                                |currency }}</p>
+                                                            <p class="text-end">IVA: {{ presupuestoCompleto.total*0.21
+                                                                |currency }}</p>
+                                                            <h5 class="text-end">Total: {{
+                                                                presupuestoCompleto.total*1.21 |currency }}</h5>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-md-6"></div>
+                                                <div class="col-md-4">
+                                                    <button type="button" class="btn btn-secondary m-2"
+                                                        data-bs-dismiss="modal">Cerrar</button>
+                                                    <button type="button" class="btn btn-success m-2"
+                                                        data-bs-dismiss="modal" (click)="pdf()">Descargar</button>
+                                                </div>
+                                                <div class="col-md-2"></div>
+                                            </div>
+                                        </div>
+                                        <!-- <app-entregable [id]="p.Id">
+                                        </app-entregable> -->
                                     </div>
                                 </div>
                             </div>

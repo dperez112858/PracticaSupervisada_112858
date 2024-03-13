@@ -15,5 +15,7 @@ public class ResultadoDetalleProductoItem : ResultadoBase
     public DateTime? FechaCreacion { get; set; }
     public double Total { get; set; }
     public Insumo Insumo { get; set; }
-    public Producto Producto { get; set; }
+    public Guid? InsumoId {get; set;} //20240304
+    public Producto Producto { get; set;}
+    public Guid? ProductoId { get; set; }//20240304
 }

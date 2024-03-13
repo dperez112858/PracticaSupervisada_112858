@@ -141,17 +141,17 @@ public class ProductoController : ControllerBase
     //         if( pro != null){
     //         var detalles = await _context.DetalleProducto.
     //         Where(d => d.Producto.Id.Equals(pro.Id)).ToListAsync();
-            
+
     //         double suma = 0;
     //         foreach (var d in detalles)
     //         {
     //             suma += d.Total;
     //         }
-            
+
     //         pro.CostoProducto = suma;
     //         pro.Utilidad = suma;
     //         pro.CostoTotal = suma * 2;
-            
+
     //         _context.Update(pro);
     //         await _context.SaveChangesAsync();
     //         result.StatusCode = 200;
@@ -199,7 +199,12 @@ public class ProductoController : ControllerBase
         try
         {
             var result = new ResultadoProducto();
-            var productos = await _context.Producto.ToListAsync();
+            //var productos = await _context.Producto.ToListAsync();
+
+            var productos = await _context.Producto
+    .Where(p => _context.Presupuesto.Any(pr => pr.Id == p.PresupuestoId && pr.Activo))
+    .ToListAsync();
+
             int cantidad = productos.Count();
 
             if (productos != null)
@@ -219,5 +224,46 @@ public class ProductoController : ControllerBase
         }
     }
 
+
+    [HttpGet("ObtenerDetalles")]
+    public async Task<ActionResult<ResultadoDetalleProducto>> ObtenerDetalles(Guid id)
+    {
+        try
+        {
+            var result = new ResultadoDetalleProducto();
+            var detalles = await _context.DetalleProducto
+                .Where(d => d.ProductoId == id)
+                .ToListAsync();
+
+            if (detalles != null && detalles.Any())
+            {
+                foreach (var detalle in detalles)
+                {
+                    var resAux = new ResultadoDetalleProductoItem
+                    {
+                        Id = detalle.Id,
+                        Cantidad = detalle.Cantidad,
+                        PrecioInsumo = detalle.precioInsumo,
+                        FechaCreacion = detalle.FechaCreacion,
+                        Total = detalle.total,
+                        Insumo = await _context.Insumo.Where(i => i.Id == detalle.InsumoId).FirstOrDefaultAsync(),
+                        ProductoId = detalle.ProductoId
+                    };
+                    result.listaDetalleProducto.Add(resAux);
+                }
+                result.StatusCode = 200;
+            }
+            else
+            {
+                result.StatusCode = 404; // Indicar que no se encontraron detalles para el producto
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest("Error al obtener los detalles desde la API: " + ex.Message);
+        }
+    }
 
 }

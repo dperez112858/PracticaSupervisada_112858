@@ -72,6 +72,51 @@ public class FacturaController : ControllerBase
         }
     }
 
+    [HttpGet("ObtenerAnterior")]
+    public async Task<ActionResult<ResultadoFactura>> ObtenerAnterior()
+    {
+        try
+        {
+            var result = new ResultadoFactura();
+            int anioAnterior = DateTime.Now.Year -1; // Obtener el año actual
+            var facturas = await _context.Factura.
+            OrderByDescending(n => n.Numero).
+            Include(c => c.Cliente).
+            Where(f => f.Cancelada == false && f.Fecha.Year == anioAnterior).ToListAsync();
+            if (facturas != null)
+            {
+                foreach (var f in facturas)
+                {
+                    var resAux = new ResultadoFacturaItem
+                    {
+                        Id = f.Id,
+                        Fecha = f.Fecha,
+                        Numero = f.Numero,
+                        TipoComprobante = f.TipoComprobante,
+                        NetoGravado = f.NetoGravado,
+                        Iva = f.Iva,
+                        Dolar = f.Dolar,
+                        TipoCambio = f.TipoCambio,
+                        Total = f.Total,
+                        Cancelada = f.Cancelada,
+                        Cliente = f.Cliente,
+                        Saldo = f.Saldo
+                    };
+                    result.listaFacturas.Add(resAux);
+                    result.StatusCode = 200;
+                }
+                return Ok(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
+        }
+        catch (Exception ex)
+        {
+            return BadRequest("Error al obtener las facturas desde la API");
+        }
+    }
     [HttpGet("ObtenerTodas")]
     public async Task<ActionResult<ResultadoFactura>> ObtenerTodas()
     {
@@ -82,6 +127,52 @@ public class FacturaController : ControllerBase
             OrderByDescending(n => n.Numero).
             Include(c => c.Cliente).
             Where(f => f.Cancelada == false).ToListAsync();
+            if (facturas != null)
+            {
+                foreach (var f in facturas)
+                {
+                    var resAux = new ResultadoFacturaItem
+                    {
+                        Id = f.Id,
+                        Fecha = f.Fecha,
+                        Numero = f.Numero,
+                        TipoComprobante = f.TipoComprobante,
+                        NetoGravado = f.NetoGravado,
+                        Iva = f.Iva,
+                        Dolar = f.Dolar,
+                        TipoCambio = f.TipoCambio,
+                        Total = f.Total,
+                        Cancelada = f.Cancelada,
+                        Cliente = f.Cliente,
+                        Saldo = f.Saldo
+                    };
+                    result.listaFacturas.Add(resAux);
+                    result.StatusCode = 200;
+                }
+                return Ok(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
+        }
+        catch (Exception ex)
+        {
+            return BadRequest("Error al obtener las facturas desde la API");
+        }
+    }
+
+    [HttpGet("ObtenerActual")]
+    public async Task<ActionResult<ResultadoFactura>> ObtenerActual()
+    {
+        try
+        {
+            var result = new ResultadoFactura();
+            int anioActual = DateTime.Now.Year; // Obtener el año actual
+            var facturas = await _context.Factura.
+            OrderByDescending(n => n.Numero).
+            Include(c => c.Cliente).
+            Where(f => f.Cancelada == false && f.Fecha.Year == anioActual).ToListAsync();
             if (facturas != null)
             {
                 foreach (var f in facturas)

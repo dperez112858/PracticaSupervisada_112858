@@ -94,7 +94,20 @@ public class InsumoController : ControllerBase
                 Include(p => p.Localidad.Provincia).
                 Include(v => v.CondicionIva).
                 Where(l => l.Id.Equals(comando.ProveedorId)).FirstOrDefaultAsync();
+
+
+
         var resultado = new ResultadoBase();
+
+        //dejo esto acá
+        if (pro == null)
+        {
+            resultado.SetError("Proveedor no encontrado.");
+            resultado.StatusCode = 404;
+            return NotFound(resultado);
+        }
+        //dejo esto acá
+
         try
         {
             var insumo = new Insumo()
@@ -132,7 +145,7 @@ public class InsumoController : ControllerBase
     }
 
     [HttpPut("Eliminar")]
-    public async Task<ActionResult<ResultadoInsumo>>Eliminar(Guid Id)
+    public async Task<ActionResult<ResultadoInsumo>> Eliminar(Guid Id)
     {
         var resultado = new ResultadoBase();
         try
@@ -143,9 +156,9 @@ public class InsumoController : ControllerBase
             if (insumo != null)
             {
                 insumo.Activo = false;
-                
-                 _context.Update(insumo);
-                await _context.SaveChangesAsync();    
+
+                _context.Update(insumo);
+                await _context.SaveChangesAsync();
                 resultado.StatusCode = 200;
                 return Ok(resultado);
             }
@@ -155,7 +168,7 @@ public class InsumoController : ControllerBase
                 resultado.StatusCode = 400;
                 return BadRequest(resultado);
             }
-            
+
             if (Id.Equals(""))
             {
                 resultado.SetError("No se puede eliminar dicho insumo");
@@ -195,7 +208,7 @@ public class InsumoController : ControllerBase
                 insumo.Descripcion = comando.Descripcion;
                 insumo.Precio = comando.Precio;
                 insumo.Proveedor = pro;
-                
+
 
                 _context.Update(insumo);
                 await _context.SaveChangesAsync();

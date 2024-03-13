@@ -9,6 +9,7 @@ public class ResultadoPresupuestoPdf : ResultadoBase
     public string? Campania { get; set; }
     public double Total { get; set; }
     public bool Aceptado { get; set; }
+    public DateTime Fecha { get; set; }
     public Cliente Cliente { get; set; }
     public List<ResultadoItem> Items { get; set; } = new List<ResultadoItem>();
 }
@@ -18,4 +19,5 @@ public class ResultadoItem
     public string Producto { get; set; }
     public double Total { get; set; }
     public int Cantidad { get; set; }
+    public Guid Id { get; set; }
 }

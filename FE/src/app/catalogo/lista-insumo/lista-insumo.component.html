@@ -12,7 +12,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let i of listaInsumos | filtroInsumo: filtroPorInsumo | paginate: { itemsPerPage: 8, currentPage: page }">
+            <tr *ngFor="let i of listaInsumos | filtroInsumo: filtroPorInsumo | paginate: { itemsPerPage: 6, currentPage: page }">
                 <td>{{ i.descripcion }}</td>
                 <td>{{ i.proveedor.razonSocial }}</td>
                 <td class="moneda">{{ i.precio | currency }}</td>

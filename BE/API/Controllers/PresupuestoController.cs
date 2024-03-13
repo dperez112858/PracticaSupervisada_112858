@@ -23,9 +23,6 @@ public class PresupuestoController : ControllerBase
     public async Task<ActionResult<ResultadoBase>> Crear([FromBody] ComandoTransaccion comando)
     {
         var resultado = new ResultadoBase();
-
-        Console.WriteLine(comando);
-
         try
         {
             if (comando.ClienteId != null)
@@ -39,7 +36,8 @@ public class PresupuestoController : ControllerBase
                 var total = 0.0;
                 foreach (Producto producto in comando.productos)
                 {
-                    total += producto.DetalleProductos.Sum(c => c.Cantidad * c.precioInsumo);
+                    total += producto.cantidadProductos * producto.DetalleProductos.Sum(c => c.Cantidad * c.precioInsumo);
+
                 }
                 var presupuesto = new Presupuesto()
                 {
@@ -47,21 +45,17 @@ public class PresupuestoController : ControllerBase
                     campania = comando.campania,
                     Aceptado = comando.Aceptado,
                     Activo = comando.Activo,
+                    Fecha = DateTime.Now,
                     Total = total,
                     Cliente = cliente
                 };
                 await GuardarPresupuesto2(presupuesto, comando.productos);
             }
-
-
-            // await _context.SaveChangesAsync();
             resultado.StatusCode = 200;
             return Ok(resultado);
-
         }
         catch (Exception ex)
         {
-
             resultado.SetError("Error al crear el presupuesto" + ex.Message);
             resultado.StatusCode = 500;
             return Ok(resultado);
@@ -69,71 +63,63 @@ public class PresupuestoController : ControllerBase
     }
 
     [ApiExplorerSettings(IgnoreApi = true)]
-    public Task GuardarPresupuesto2(Presupuesto presupuesto, IList<Producto> productos)
+    public async Task GuardarPresupuesto2(Presupuesto presupuesto, IList<Producto> productos)
     {
-
         _context.Presupuesto.Add(presupuesto);
-        return _context.SaveChangesAsync().ContinueWith(async t =>
+        var currentTime = DateTime.Now;
+        await _context.SaveChangesAsync();
+
+        foreach (var pro in productos)
         {
-
-            foreach (var pro in productos)
+            var producto = new Producto()
             {
-
-                var producto = new Producto()
-                {
-                    Id = Guid.NewGuid(),
-                    banioProducto = pro.banioProducto,
-                    nombreProducto = pro.nombreProducto,
-                    cantidadProductos = pro.cantidadProductos,
-                    FechaCreacion = DateTime.Now,
-                    costoProducto = pro.costoProducto,
-                    utilidad = pro.costoProducto * 0.4,
-                    costoTotal = pro.costoTotal,
-                    PresupuestoId = presupuesto.Id
-                };
-
-                await GuardarProducto2(producto, presupuesto.Id, pro.DetalleProductos);
-
-            }
+                Id = Guid.NewGuid(),
+                banioProducto = pro.banioProducto,
+                nombreProducto = pro.nombreProducto,
+                cantidadProductos = pro.cantidadProductos,
+                FechaCreacion = currentTime, // Utilizando la misma marca de tiempo para todos los productos
+                costoProducto = pro.DetalleProductos.Sum(c => c.Cantidad * c.precioInsumo),
+                utilidad = pro.DetalleProductos.Sum(c => c.Cantidad * c.precioInsumo) * 0.4,
+                costoTotal = pro.DetalleProductos.Sum(c => c.Cantidad * c.precioInsumo) * 1.4,
+                PresupuestoId = presupuesto.Id
+            };
+            await GuardarProducto2(producto, currentTime, presupuesto.Id, pro.DetalleProductos);
         }
-        );
     }
-
     [ApiExplorerSettings(IgnoreApi = true)]
-    public Task GuardarProducto2(Producto producto, Guid pId, IList<DetalleProducto> detalles)
+    public async Task GuardarProducto2(Producto producto, DateTime currentTime, Guid pId, IList<DetalleProducto> detalles)
     {
-
         _context.Producto.Add(producto);
-        return _context.SaveChangesAsync().ContinueWith(async t =>
+        await _context.SaveChangesAsync();
+
+        foreach (var detalle in detalles)
         {
-            // var detallePresupuesto = new DetallePresupuesto(){
-            //         Id = Guid.NewGuid(),
-            //         PresupuestoId = pId,
-            //         ProductoId = producto.Id
-            //     };
-
-            //     await _context.DetallePresupuesto.AddAsync(detallePresupuesto);
-
-            var tasks = new List<Task>();
-
-            foreach (var detalle in detalles)
-            {
-                // await GuardarDetalleProducto(detalle, producto.Id);
-                tasks.Add(GuardarDetalleProducto(detalle, producto.Id));
-            }
-            await Task.WhenAll(tasks);
-        });
-
+            await GuardarDetalleProducto(detalle, currentTime, producto.Id);
+        }
     }
+    // [ApiExplorerSettings(IgnoreApi = true)]
+    // public async Task GuardarProducto2(Producto producto, DateTime currentTime, Guid pId, IList<DetalleProducto> detalles)
+    // {
+    //     _context.Producto.Add(producto);
+    //     await _context.SaveChangesAsync();
+
+    //     var tasks = new List<Task>();
+    //     foreach (var detalle in detalles)
+    //     {
+    //         tasks.Add(GuardarDetalleProducto(detalle, currentTime, producto.Id));
+    //     }
+    //     await Task.WhenAll(tasks);
+    // }
 
     [ApiExplorerSettings(IgnoreApi = true)]
-    public async Task GuardarDetalleProducto(DetalleProducto detalle, Guid pId)
+    public async Task GuardarDetalleProducto(DetalleProducto detalle, DateTime currentTime, Guid pId)
     {
         var detalleProductos = new DetalleProducto()
         {
             Id = Guid.NewGuid(),
             Cantidad = detalle.Cantidad,
-            FechaCreacion = DateTime.Now,
+            //FechaCreacion = currentTime, // Utilizando la misma marca de tiempo para todos los detalles
+            FechaCreacion = currentTime,
             precioInsumo = detalle.precioInsumo,
             total = detalle.total,
             InsumoId = detalle.InsumoId,
@@ -141,235 +127,9 @@ public class PresupuestoController : ControllerBase
         };
         _context.DetalleProducto.Add(detalleProductos);
         await _context.SaveChangesAsync();
-
     }
 
 
-
-
-    // [HttpPost("Crear")]
-    // public async Task<ActionResult<ResultadoBase>> Crear([FromBody] ComandoTransaccion comando)
-    // {
-    //     var resultado = new ResultadoBase();
-    //     var cli = await _context.Cliente.Where(c => c.Id.Equals(comando.clienteId)).FirstOrDefaultAsync();
-    //     try
-    //     {
-    //         var presupuesto = new Presupuesto()
-    //         {
-    //             Id = Guid.NewGuid(),
-    //             Cliente = cli,
-    //             campania = comando.campania,
-    //             Total = comando.detallePresupuestos.Sum(c => c.PrecioUnitario * c.CantidadProductos)
-    //         };
-    //         foreach (var productos in comando.detallePresupuestos)
-    //         {
-    //             var detallePresupuesto = new DetallePresupuesto()
-    //             {
-    //                 Id = Guid.NewGuid(),
-    //                 CantidadProductos = productos.CantidadProductos,
-    //                 PrecioUnitario = productos.PrecioUnitario,
-    //                 Total = productos.CantidadProductos * productos.PrecioUnitario,
-    //                 PresupuestoId = presupuesto.Id,
-    //                 ProductoId = Guid.NewGuid(),
-    //             };
-
-    //             if (detallePresupuesto != null)
-    //             {
-    //                 await _context.DetallePresupuesto.AddAsync(detallePresupuesto);
-    //             }
-    //             else
-    //             {
-    //                 resultado.SetError("Error, el detalle de cobranza cargó nulo");
-    //                 resultado.StatusCode = 500;
-    //                 return Ok(resultado);
-    //             }
-
-    //         }
-
-
-    // var presupuestoT = new Presupuesto()
-    // {
-    //     Id = comando.PresupuestoT.Id,
-    //     Campania = comando.PresupuestoT.Campania,
-    //     Total = comando.PresupuestoT.Total,
-    //     Activo = comando.PresupuestoT.Activo,
-    //     Aceptado = comando.PresupuestoT.Aceptado,
-    //     Cliente = comando.PresupuestoT.Cliente,
-    //     Numero = comando.PresupuestoT.Numero,
-    //     DetallePresupuesto = new List<DetallePresupuesto>()
-    // };
-
-    // foreach (var detallePresupuestoT in comando.PresupuestoT.DetallePresupuesto)
-    // {
-    //     var detallePresupuesto = new DetallePresupuesto()
-    //     {
-    //         Id = detallePresupuestoT.Id,
-    //         CantidadProductos = detallePresupuestoT.CantidadProductos,
-    //         PrecioUnitario = detallePresupuestoT.PrecioUnitario,
-    //         Presupuesto = comando.PresupuestoT,
-    //         Producto = comando.ProductoT
-    //     };
-
-    //     if (detallePresupuesto != null) {
-    //         await _context.DetallePresupuesto.AddAsync(detallePresupuesto);
-    //     } else
-    //     {
-    //         resultado.SetError("Error, el detalle de cobranza cargó nulo");
-    //         resultado.StatusCode = 500;
-    //         return Ok(resultado);
-    //     }
-    // }
-
-    // await _context.Producto.AddAsync(productoT);
-    // await _context.Presupuesto.AddAsync(presupuestoT);
-    //         await _context.SaveChangesAsync();
-    //         resultado.StatusCode = 200;
-    //         return Ok(resultado);
-
-    //     }
-    //     catch (Exception ex)
-    //     {
-
-    //         resultado.SetError("Error al crear el presupuesto");
-    //         resultado.StatusCode = 500;
-    //         return Ok(resultado);
-    //     }
-    // }
-
-
-    // [HttpPost("Crear")]
-    // public async Task<ActionResult<ResultadoBase>> Crear([FromBody] ComandoTransaccion comando)
-    // {
-    //     var resultado = new ResultadoBase();
-    //     var cli = await _context.Cliente.Where(c => c.Id.Equals(comando.clienteId)).FirstOrDefaultAsync();
-    //     try
-    //     {
-    //         var presupuesto = new Presupuesto()
-    //         {
-    //             Id = Guid.NewGuid(),
-    //             Cliente = cli,
-    //             campania = comando.campania,
-    //             Total = 0
-    //         };
-    //          foreach (var detalle in comando.detallePresupuestos)
-    //         {
-    //             var detallePresupuesto = new DetallePresupuesto()
-    //             {
-    //                 Id = Guid.NewGuid(),
-    //                 CantidadProductos = detalle.CantidadProductos,
-    //                 PrecioUnitario = detalle.PrecioUnitario,
-    //                 Total = detalle.CantidadProductos * detalle.PrecioUnitario,
-    //                 PresupuestoId = presupuesto.Id,
-    //                 ProductoId = Guid.NewGuid(),
-    //             };
-
-    //            if (detallePresupuesto != null) {
-    //                 await _context.DetallePresupuesto.AddAsync(detallePresupuesto);
-    //             } else
-    //             {
-    //                 resultado.SetError("Error, el detalle de cobranza cargó nulo");
-    //                 resultado.StatusCode = 500;
-    //                 return Ok(resultado);
-    //             }
-
-    //         }
-
-
-    //         var presupuestoT = new Presupuesto()
-    //         {
-    //             Id = comando.PresupuestoT.Id,
-    //             Campania = comando.PresupuestoT.Campania,
-    //             Total = comando.PresupuestoT.Total,
-    //             Activo = comando.PresupuestoT.Activo,
-    //             Aceptado = comando.PresupuestoT.Aceptado,
-    //             Cliente = comando.PresupuestoT.Cliente,
-    //             Numero = comando.PresupuestoT.Numero,
-    //             DetallePresupuesto = new List<DetallePresupuesto>()
-    //         };
-
-    //         foreach (var detallePresupuestoT in comando.PresupuestoT.DetallePresupuesto)
-    //         {
-    //             var detallePresupuesto = new DetallePresupuesto()
-    //             {
-    //                 Id = detallePresupuestoT.Id,
-    //                 CantidadProductos = detallePresupuestoT.CantidadProductos,
-    //                 PrecioUnitario = detallePresupuestoT.PrecioUnitario,
-    //                 Presupuesto = comando.PresupuestoT,
-    //                 Producto = comando.ProductoT
-    //             };
-
-    //             if (detallePresupuesto != null) {
-    //                 await _context.DetallePresupuesto.AddAsync(detallePresupuesto);
-    //             } else
-    //             {
-    //                 resultado.SetError("Error, el detalle de cobranza cargó nulo");
-    //                 resultado.StatusCode = 500;
-    //                 return Ok(resultado);
-    //             }
-    //         }
-
-    //             await _context.Producto.AddAsync(productoT);
-    //             await _context.Presupuesto.AddAsync(presupuestoT);
-    //             await _context.SaveChangesAsync();
-    //         resultado.StatusCode = 200;
-    //         return Ok(resultado);
-
-    //     }
-    //     catch (Exception ex)
-    //     {
-
-    //         resultado.SetError("Error al crear el presupuesto");
-    //         resultado.StatusCode = 500;
-    //         return Ok(resultado);
-    //     }
-    // }
-
-
-
-    // [HttpPost("Crear")]
-    // public async Task<ActionResult<ResultadoBase>> Crear([FromBody] ComandoPresupuesto comando)
-    // {
-    //     var cli = await _context.Cliente.
-    //             Include(l => l.Localidad).
-    //             Include(p => p.Localidad.Provincia).
-    //             Include(v => v.CondicionIva).
-    //             Where(c => c.Id.Equals(comando.ClienteId)).FirstOrDefaultAsync();
-    //     var resultado = new ResultadoBase();
-    //     try
-    //     {
-    //         var presupuesto = new Presupuesto()
-    //         {
-    //             Id = Guid.NewGuid(),
-    //             Campania = comando.Campania,
-    //             Total = comando.Total,
-    //             Cliente = cli,
-    //             Activo = comando.Activo,
-    //             Aceptado = comando.Aceptado
-    //         };
-
-    //         if (presupuesto != null)
-    //         {
-    //             await _context.AddAsync(presupuesto);
-    //             await _context.SaveChangesAsync();
-    //             resultado.StatusCode = 200;
-    //             return Ok(resultado);
-    //         }
-    //         else
-    //         {
-    //             resultado.SetError("Error al crear el presupuesto cargó nulo");
-    //             resultado.StatusCode = 500;
-    //             return Ok(resultado);
-    //         }
-
-    //     }
-    //     catch (Exception ex)
-    //     {
-
-    //         resultado.SetError("Error al crear el presupuesto");
-    //         resultado.StatusCode = 500;
-    //         return Ok(resultado);
-    //     }
-    // }
 
     [HttpGet("ObtenerTodos")]
     public async Task<ActionResult<ResultadoPresupuesto>> ObtenerTodos()
@@ -417,7 +177,8 @@ public class PresupuestoController : ControllerBase
         try
         {
             var result = new ResultadoPresupuesto();
-            var presupuestos = await _context.Presupuesto.ToListAsync();
+            var presupuestos = await _context.Presupuesto
+            .Where(p => p.Activo).ToListAsync();
             int cantidad = presupuestos.Count();
 
             if (presupuestos != null)
@@ -444,10 +205,16 @@ public class PresupuestoController : ControllerBase
         try
         {
             var result = new ResultadoBase();
-            var listadoFactMes = await _context.Presupuesto.
+            var consulta = _context.Presupuesto.
             OrderByDescending(n => n.Numero).
             Include(c => c.Cliente).
-            Where(c => c.Fecha >= comando.fechaInicio && c.Fecha <= comando.fechaFin && c.Cliente.Id == comando.ClienteId).ToListAsync();
+            Where(c => c.Fecha >= comando.fechaInicio && c.Fecha <= comando.fechaFin);
+            if (comando.ClienteId != Guid.Empty && comando.ClienteId != null)
+            {
+                consulta = consulta.Where(c => c.Cliente.Id == comando.ClienteId);
+            }
+            var listadoFactMes = await consulta.ToListAsync();
+
             if (listadoFactMes != null)
             {
                 return Ok(listadoFactMes);
@@ -456,6 +223,7 @@ public class PresupuestoController : ControllerBase
             {
                 return Ok(result);
             }
+
         }
         catch (Exception ex)
         {
@@ -470,7 +238,7 @@ public class PresupuestoController : ControllerBase
         {
             var result = new ResultadoPresupuesto();
             var presupuestos = await _context.Presupuesto.
-            Where(p => p.Aceptado).ToListAsync();
+            Where(p => p.Aceptado && p.Activo).ToListAsync();
             int cantidadAceptados = presupuestos.Count();
 
             if (presupuestos != null)
@@ -538,6 +306,7 @@ public class PresupuestoController : ControllerBase
         {
             var result = new ResultadoPresupuestoPdf();
             var presupuesto = await _context.Presupuesto.
+            Include(c => c.Cliente).
             Where(p => p.Id.Equals(id)).FirstOrDefaultAsync();
 
             if (presupuesto != null)
@@ -548,6 +317,7 @@ public class PresupuestoController : ControllerBase
                 result.Total = presupuesto.Total;
                 result.Aceptado = presupuesto.Aceptado;
                 result.Cliente = presupuesto.Cliente;
+                result.Fecha = presupuesto.Fecha;
                 //presupuesto.p
                 result.Items = new List<ResultadoItem>();
                 var productos = await _context.Producto.
@@ -559,6 +329,7 @@ public class PresupuestoController : ControllerBase
                     item.Producto = producto.nombreProducto;
                     item.Cantidad = producto.cantidadProductos;
                     item.Total = producto.cantidadProductos * producto.costoTotal;
+                    item.Id = producto.Id;
 
                     result.Items.Add(item);
                 }

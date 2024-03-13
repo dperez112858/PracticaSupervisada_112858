@@ -15,7 +15,7 @@
         </thead>
         <tbody>
             <tr
-                *ngFor="let p of listaProveedores | filtroRazonSocial: filtroPorRazonSocial |  paginate: { itemsPerPage: 8, currentPage: page }">
+                *ngFor="let p of listaProveedores | filtroRazonSocial: filtroPorRazonSocial |  paginate: { itemsPerPage: 6, currentPage: page }">
                 <td>{{p.razonSocial}}</td>
                 <td>{{p.cuit}}</td>
                 <td>{{p.calle + ' ' + p.numero}}</td>

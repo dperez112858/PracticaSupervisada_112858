@@ -64,4 +64,10 @@ export class FacturaProvider {
         return this.http.get(this.urlApi + 'api/Factura/ObtenerAnioAnterior');
     }
 
+    ObtenerActual(): Observable<any> {
+        return this.http.get(this.urlApi + 'api/Factura/ObtenerActual');
+    }
+    ObtenerAnterior(): Observable<any> {
+        return this.http.get(this.urlApi + 'api/Factura/ObtenerAnterior');
+    }
 }

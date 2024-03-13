@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environments/environment";
 import { Producto } from "src/interfaces/producto";
+import { DetalleProductoPdf } from "src/interfaces/detalle-producto-pdf";
 
 @Injectable()
 export class ProductoProvider {
@@ -39,5 +40,9 @@ export class ProductoProvider {
 
     ObtenerCantidad(): Observable<any> {
         return this.http.get(this.urlApi + 'api/Producto/ObtenerCantidad');
+    }
+
+    ObtenerDetallePorId(id: string): Observable<DetalleProductoPdf> {
+        return this.http.get<DetalleProductoPdf>(this.urlApi + 'api/Producto/ObtenerDetalles?id=' + id);
     }
 }

@@ -103,6 +103,15 @@ public class ClienteController : ControllerBase
         var resultado = new ResultadoBase();
         try
         {
+
+            //dejo esto acá
+            if (loc == null || cIva == null)
+            {
+                resultado.SetError("localidad o condición de IVA no encontrado.");
+                resultado.StatusCode = 404;
+                return NotFound(resultado);
+            }
+            //dejo esto acá
             var cliente = new Cliente()
             {
                 Id = Guid.NewGuid(),
@@ -179,7 +188,7 @@ public class ClienteController : ControllerBase
                 cliente.Comentario = comando.Comentario;
                 cliente.Localidad = _context.Localidad.FirstOrDefault(l => l.Id == comando.LocalidadId); ;
                 cliente.CondicionIva = _context.CondicionIva.FirstOrDefault(c => c.Id == comando.CondicionIvaId);
-                
+
                 _context.Update(cliente);
                 await _context.SaveChangesAsync();
                 resultado.StatusCode = 200;
@@ -203,7 +212,7 @@ public class ClienteController : ControllerBase
     }
 
     [HttpPut("Eliminar")]
-    public async Task<ActionResult<ResultadoCliente>>Eliminar(Guid Id)
+    public async Task<ActionResult<ResultadoCliente>> Eliminar(Guid Id)
     {
         var resultado = new ResultadoBase();
         try
@@ -215,9 +224,9 @@ public class ClienteController : ControllerBase
             if (cliente != null)
             {
                 cliente.Activo = false;
-                
-                 _context.Update(cliente);
-                await _context.SaveChangesAsync();    
+
+                _context.Update(cliente);
+                await _context.SaveChangesAsync();
                 resultado.StatusCode = 200;
                 return Ok(resultado);
             }
@@ -227,7 +236,7 @@ public class ClienteController : ControllerBase
                 resultado.StatusCode = 400;
                 return BadRequest(resultado);
             }
-            
+
             if (Id.Equals(""))
             {
                 resultado.SetError("No se puede eliminar dicho cliente");

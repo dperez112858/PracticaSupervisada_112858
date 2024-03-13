@@ -22,6 +22,7 @@ export class ListaCobranzaComponent implements OnInit, OnDestroy {
   detalleCobranza: FormArray;
   public page: number;
   listaCliente: any = [];
+  fechaCobranza: Date;
 
   constructor(
     private router: Router,
